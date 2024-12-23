@@ -16,16 +16,15 @@ const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const AppError_1 = __importDefault(require("../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../config"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_model_1 = require("../modules/user/user.model");
+const auth_utils_1 = require("../modules/auth/auth.utils");
 const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const token = req.headers.authorization;
-        //if the taken is sent from the client
         if (!token) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
         }
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_secret);
+        const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
         const { userId, role, iat } = decoded;
         const user = yield user_model_1.User.isUserExistsByCustomId(userId);
         if (!user) {
@@ -50,7 +49,6 @@ const auth = (...requiredRoles) => {
         }
         req.user = decoded;
         next();
-        //    console.log(req.user)
     }));
 };
 exports.default = auth;

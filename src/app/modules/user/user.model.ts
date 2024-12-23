@@ -4,9 +4,14 @@ import { TUser, UserModel } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
 
-const userSchema = new Schema<TUser,UserModel>(
+const userSchema = new Schema<TUser, UserModel>(
   {
     id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -14,14 +19,14 @@ const userSchema = new Schema<TUser,UserModel>(
     password: {
       type: String,
       required: true,
-      select:0, //jate get korleo eta client na dekte pai
+      select: 0, //jate get korleo eta client na dekte pai
     },
     needsPasswordChange: {
       type: Boolean,
       default: true,
     },
-    passwordChangedAt:{
-      type:Date
+    passwordChangedAt: {
+      type: Date,
     },
     role: {
       type: String,
@@ -61,7 +66,7 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 userSchema.statics.isUserExistsByCustomId = async function (id: string) {
-  return await User.findOne({ id }).select('+password');//onno document paowar jonno + ag e dite hoi
+  return await User.findOne({ id }).select('+password'); //onno document paowar jonno + ag e dite hoi
 };
 
 userSchema.statics.isPasswordMatched = async function (
@@ -80,4 +85,4 @@ userSchema.statics.isJWTIssuedBeforePasswordChanged = function (
   return passwordChangedTime > jwtIssuedTimestamp;
 };
 
-export const User = model<TUser,UserModel>('User', userSchema);
+export const User = model<TUser, UserModel>('User', userSchema);

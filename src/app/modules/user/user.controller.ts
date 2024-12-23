@@ -42,18 +42,18 @@ const createStudentController = catchAsync(async (req, res) => {
   });
 });
 
-const createFacultyController = catchAsync (async(req,res)=>{
-const {password,faculty: facultyData} = req.body;
+const createFacultyController = catchAsync(async (req, res) => {
+  const { password, faculty: facultyData } = req.body;
 
-const result = await UserServices.createFacultyIntoDB(password, facultyData);
+  const result = await UserServices.createFacultyIntoDB(password, facultyData);
 
-sendResponse(res, {
-  statusCode: httpStatus.OK,
-  success: true,
-  message: 'data added successfully',
-  data: result,
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'data added successfully',
+    data: result,
+  });
 });
-})
 
 const createAdmin = catchAsync(async (req, res) => {
   const { password, admin: adminData } = req.body;
@@ -63,14 +63,27 @@ const createAdmin = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Admin is created succesfully',
+    message: 'Admin is created successfully',
     data: result,
   });
 });
 
+const getMe = catchAsync(async (req, res) => {
+  const { userId, role } = req.user;
+
+  const result = await UserServices.getMe(userId, role);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User is retrieved successfully',
+    data: result,
+  });
+});
 
 export const UserControllers = {
   createStudentController,
   createFacultyController,
-  createAdmin
+  createAdmin,
+  getMe,
 };

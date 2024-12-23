@@ -3,7 +3,6 @@ import validateRequest from '../../middlewares/validateRequest';
 import { AdminControllers } from './admin.controller';
 import { updateAdminValidationSchema } from './admin.validation';
 
-
 const router = express.Router();
 
 router.get('/', AdminControllers.getAllAdmins);

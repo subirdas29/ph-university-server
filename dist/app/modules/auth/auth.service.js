@@ -19,7 +19,7 @@ const user_model_1 = require("../user/user.model");
 const config_1 = __importDefault(require("../../config"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_utils_1 = require("./auth.utils");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const sendEmail_1 = require("../../utils/sendEmail");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
     // const isUserExists = await User.findOne({id: payload?.id});
@@ -92,7 +92,7 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     if (!token) {
         throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
     }
-    const decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_refresh_secret);
+    const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_refresh_secret);
     const { userId, iat } = decoded;
     const user = yield user_model_1.User.isUserExistsByCustomId(userId);
     if (!user) {
@@ -121,8 +121,67 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         accessToken,
     };
 });
+const forgetPassword = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.isUserExistsByCustomId(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
+    }
+    // checking if the user is already deleted
+    const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
+    if (isUserDeleted) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+    }
+    // checking if the user is blocked
+    const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
+    if (isUserBlocked === 'blocked') {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+    }
+    const jwtPayload = {
+        userId: user === null || user === void 0 ? void 0 : user.id,
+        role: user === null || user === void 0 ? void 0 : user.role
+    };
+    const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '10m');
+    const resetUILink = `{${config_1.default.reset_pass_ui_link}?id=${user === null || user === void 0 ? void 0 : user.id}&token=${resetToken}}`;
+    (0, sendEmail_1.sendEmail)(user.email, resetUILink);
+});
+const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!token) {
+        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
+    }
+    const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
+    const { userId } = decoded;
+    const user = yield user_model_1.User.isUserExistsByCustomId(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This user is not found !');
+    }
+    // checking if the user is already deleted
+    const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
+    if (isUserDeleted) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+    }
+    // checking if the user is blocked
+    const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
+    if (isUserBlocked === 'blocked') {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+    }
+    if ((decoded === null || decoded === void 0 ? void 0 : decoded.userId) !== (payload === null || payload === void 0 ? void 0 : payload.id)) {
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "You are forbidden");
+    }
+    //hash new password
+    const newHashedPassword = yield bcrypt_1.default.hash(payload === null || payload === void 0 ? void 0 : payload.newPassword, Number(config_1.default.bcrypt_salt_rounds));
+    yield user_model_1.User.findOneAndUpdate({
+        id: decoded === null || decoded === void 0 ? void 0 : decoded.userId,
+        role: decoded === null || decoded === void 0 ? void 0 : decoded.role
+    }, {
+        password: newHashedPassword,
+        needsPasswordChange: false,
+        passwordChangedAt: new Date(),
+    });
+});
 exports.AuthServices = {
     loginUser,
     changePassword,
-    refreshToken
+    refreshToken,
+    forgetPassword,
+    resetPassword
 };

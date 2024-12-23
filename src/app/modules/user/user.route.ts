@@ -12,20 +12,28 @@ const router = express.Router();
 // ekhane client side theke jkn /create-student route e hit hbe tkn StudentController.studentController ae controller function e route call hbe
 
 router.post(
-  '/create-student',auth(USER_ROLES.admin),
+  '/create-student',
+  auth(USER_ROLES.admin),
   validationRequest(studentValidations.createStudentValidationSchema),
   UserControllers.createStudentController,
 );
 
-router.post('/create-faculty',validationRequest(facultyValidations.createFacultyValidationSchema),
-UserControllers.createFacultyController
-)
+router.post(
+  '/create-faculty',
+  validationRequest(facultyValidations.createFacultyValidationSchema),
+  UserControllers.createFacultyController,
+);
 
 router.post(
   '/create-admin',
-  // auth(USER_ROLE.admin),
   validationRequest(createAdminValidationSchema),
   UserControllers.createAdmin,
+);
+
+router.get(
+  '/me',
+  auth(USER_ROLES.admin, USER_ROLES.student, USER_ROLES.faculty),
+  UserControllers.getMe,
 );
 
 export const UserRoutes = router; // eta nijei ekta object tai alada kore object create korar drkr nai.

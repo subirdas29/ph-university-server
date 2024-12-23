@@ -16,7 +16,6 @@ const router = express_1.default.Router();
 // ekhane client side theke jkn /create-student route e hit hbe tkn StudentController.studentController ae controller function e route call hbe
 router.post('/create-student', (0, auth_1.default)(user_constant_1.USER_ROLES.admin), (0, validateRequest_1.default)(student_validation_1.studentValidations.createStudentValidationSchema), user_controller_1.UserControllers.createStudentController);
 router.post('/create-faculty', (0, validateRequest_1.default)(faculty_validation_1.facultyValidations.createFacultyValidationSchema), user_controller_1.UserControllers.createFacultyController);
-router.post('/create-admin', 
-// auth(USER_ROLE.admin),
-(0, validateRequest_1.default)(admin_validation_1.createAdminValidationSchema), user_controller_1.UserControllers.createAdmin);
+router.post('/create-admin', (0, validateRequest_1.default)(admin_validation_1.createAdminValidationSchema), user_controller_1.UserControllers.createAdmin);
+router.get('/me', (0, auth_1.default)(user_constant_1.USER_ROLES.admin, user_constant_1.USER_ROLES.student, user_constant_1.USER_ROLES.faculty), user_controller_1.UserControllers.getMe);
 exports.UserRoutes = router; // eta nijei ekta object tai alada kore object create korar drkr nai.

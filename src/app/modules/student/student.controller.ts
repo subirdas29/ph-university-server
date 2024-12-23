@@ -6,9 +6,7 @@ import httpStatus from 'http-status';
 // import { z } from "zod";
 
 const getAllStudent = catchAsync(async (req, res) => {
-
   const query = req.query;
-  
 
   const result = await StudentServices.getAllStudentFromDB(query);
   // res.status(200).json({
@@ -45,24 +43,21 @@ const getOneStudent = catchAsync(async (req, res) => {
   });
 });
 
+const updateStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { student } = req.body;
+  const result = await StudentServices.updateStudentFromDB(id, student);
 
-const updateStudent  = catchAsync(async(req,res)=>{
-  const {id} = req.params;
-  const {student} = req.body
-  const result = await StudentServices.updateStudentFromDB(id,student);
-
-  sendResponse(res,{
-    statusCode:httpStatus.OK,
-    success:true,
-    message:'One Student data updated',
-    data:result,
-  })
-
-})
-
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'One Student data updated',
+    data: result,
+  });
+});
 
 const deleteOneStudent = catchAsync(async (req, res) => {
-  const {id } = req.params;
+  const { id } = req.params;
 
   const result = await StudentServices.deleteStudentFromDB(id);
   // res.status(200).json({

@@ -36,6 +36,7 @@ const createStudentIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
     userData.password = password || config_1.default.default_password;
     //set student role
     userData.role = 'student';
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
     // find academic semester info
     const admissionSemester = yield academicSemester_model_1.AcademicSemester.findById(payload.admissionSemester);
     if (!admissionSemester) {
@@ -84,6 +85,7 @@ const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
     const userData = {};
     userData.role = 'faculty';
     userData.password = password || config_1.default.default_password;
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
@@ -115,6 +117,7 @@ const createAdminIntoDB = (password, payload) => __awaiter(void 0, void 0, void 
     userData.password = password || config_1.default.default_password;
     //set student role
     userData.role = 'admin';
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
@@ -144,8 +147,22 @@ const createAdminIntoDB = (password, payload) => __awaiter(void 0, void 0, void 
         throw new Error(err);
     }
 });
+const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
+    let result = null;
+    if (role === 'student') {
+        result = yield student_model_1.Student.findOne({ id: userId }).populate('user');
+    }
+    if (role === 'admin') {
+        result = yield admin_model_1.Admin.findOne({ id: userId }).populate('user');
+    }
+    if (role === 'faculty') {
+        result = yield faculty_model_1.Faculty.findOne({ id: userId }).populate('user');
+    }
+    return result;
+});
 exports.UserServices = {
     createStudentIntoDB,
     createFacultyIntoDB,
-    createAdminIntoDB
+    createAdminIntoDB,
+    getMe
 };

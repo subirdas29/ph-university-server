@@ -4,7 +4,6 @@ import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 // import status from "http-status";
 
-
 // ae notFound error ta sudu matro route path api vul dile dekhabe (mane jei path ta exist kore na ta dile sudu ae error ta show korbe)
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {

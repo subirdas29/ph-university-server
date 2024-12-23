@@ -1,4 +1,3 @@
-
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 
@@ -10,13 +9,13 @@ const app: Application = express();
 
 //parsers
 app.use(express.json());
-app.use(cookieParser())
-app.use(cors({origin:['http://localhost:5173']}));
+app.use(cookieParser());
+app.use(cors({ origin: ['http://localhost:5173'] }));
 
 // application routes
 app.use('/api/v1', router);
 
-const test = async(req: Request, res: Response) => {
+const test = async (req: Request, res: Response) => {
   // Promise.reject()
   res.send('😎server running');
 };

@@ -26,7 +26,7 @@ export const generatedStudentId = async (payload: TAcademicSemester) => {
   //2030010001
   const latestStudentSemesterYear = latestStudentDetails?.substring(0, 4);
   const latestStudentSemesterCode = latestStudentDetails?.substring(4, 6);
- 
+
   if (
     latestStudentDetails &&
     latestStudentSemesterCode === payload.code &&
@@ -41,34 +41,34 @@ export const generatedStudentId = async (payload: TAcademicSemester) => {
   return incrementId;
 };
 
+const findLastFacultyId = async () => {
+  const latestFaculty = await User.findOne(
+    {
+      role: 'faculty',
+    },
+    {
+      id: 1,
+      _id: 0,
+    },
+  )
+    .sort({ createdAt: -1 })
+    .lean();
+  return latestFaculty?.id ? latestFaculty?.id : undefined;
+};
 
-const findLastFacultyId = async()=>{
-  const latestFaculty = await User.findOne({
-    role:'faculty'
-  },
-  {
-    id:1,
-    _id:0
-  }
-).sort({createdAt:-1}).lean()
-return latestFaculty?.id ? latestFaculty?.id : undefined;
-}
-
-
-export const generatedFacultyId =async()=>{
-
+export const generatedFacultyId = async () => {
   let currentId = (0).toString();
 
-  const latestFacultyDetails = await findLastFacultyId()
+  const latestFacultyDetails = await findLastFacultyId();
 
-  if(latestFacultyDetails){
-    currentId = latestFacultyDetails.substring(2)
+  if (latestFacultyDetails) {
+    currentId = latestFacultyDetails.substring(2);
   }
 
-  let incrementId = (Number(currentId)+1).toString().padStart(4,'0')
-  incrementId = `F-${incrementId}`
+  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
+  incrementId = `F-${incrementId}`;
   return incrementId;
-}
+};
 
 // Admin ID
 export const findLastAdminId = async () => {
@@ -89,7 +89,6 @@ export const findLastAdminId = async () => {
   return lastAdmin?.id ? lastAdmin.id.substring(2) : undefined;
 };
 
-
 export const generateAdminId = async () => {
   let currentId = (0).toString();
   const lastAdminId = await findLastAdminId();
@@ -99,7 +98,7 @@ export const generateAdminId = async () => {
   }
 
   let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
-  
+
   incrementId = `A-${incrementId}`;
   return incrementId;
 };
