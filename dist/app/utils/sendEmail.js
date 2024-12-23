@@ -17,19 +17,19 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const config_1 = __importDefault(require("../config"));
 const sendEmail = (to, html) => __awaiter(void 0, void 0, void 0, function* () {
     const transporter = nodemailer_1.default.createTransport({
-        host: "smtp.gmail.com",
+        host: 'smtp.gmail.com',
         port: 587,
         secure: config_1.default.NODE_ENV === 'production', // true for port 465, false for other ports
         auth: {
-            user: "subirdas1045@gmail.com",
-            pass: "xdyv oeeb runl krje",
+            user: 'subirdas1045@gmail.com',
+            pass: 'xdyv oeeb runl krje',
         },
     });
     yield transporter.sendMail({
         from: 'subirdas1045@gmail.com', // sender address
         to, // list of receivers
-        subject: "Reset your password within 10min ✔", // Subject line
-        text: "", // plain text body
+        subject: 'Reset your password within 10min ✔', // Subject line
+        text: '', // plain text body
         html, // html body
     });
 });

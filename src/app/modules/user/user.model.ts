@@ -3,6 +3,7 @@ import { model } from 'mongoose';
 import { TUser, UserModel } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
+import { Status } from './user.constant';
 
 const userSchema = new Schema<TUser, UserModel>(
   {
@@ -34,7 +35,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     status: {
       type: String,
-      enum: ['in-progress', 'blocked'],
+      enum: Status,
       default: 'in-progress',
     },
     isDeleted: {

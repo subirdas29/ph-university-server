@@ -81,12 +81,12 @@ const createOfferedCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0,
     const assignedSchedules = yield OfferedCourse_model_1.OfferedCourse.find({
         semesterRegistration,
         faculty,
-        days: { $in: days } // days er upor depend kore time gula compare korbo
+        days: { $in: days }, // days er upor depend kore time gula compare korbo
     }).select('days startTime endTime');
     const newSchedule = {
         days,
         startTime,
-        endTime
+        endTime,
     };
     if ((0, OfferedCourse_utils_1.hasTimeConflict)(assignedSchedules, newSchedule)) {
         throw new AppError_1.default(http_status_1.default.CONFLICT, `This faculty is not available at that time ! Choose other time or day`);
@@ -107,31 +107,33 @@ const updateOfferedCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, voi
     const { faculty, days, startTime, endTime } = payload;
     const isOfferCourseExists = yield OfferedCourse_model_1.OfferedCourse.findById(id);
     if (!isOfferCourseExists) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Offer course not found");
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Offer course not found');
     }
     const isFacultyExists = yield faculty_model_1.Faculty.findById(faculty);
     if (!isFacultyExists) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "faculty is not found");
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'faculty is not found');
     }
     const semesterRegistration = isOfferCourseExists === null || isOfferCourseExists === void 0 ? void 0 : isOfferCourseExists.semesterRegistration;
     const semesterRegistrationStatus = yield semesterRegistration_model_1.SemesterRegistration.findById(semesterRegistration);
-    if ((semesterRegistrationStatus === null || semesterRegistrationStatus === void 0 ? void 0 : semesterRegistrationStatus.status) !== "UPCOMING") {
+    if ((semesterRegistrationStatus === null || semesterRegistrationStatus === void 0 ? void 0 : semesterRegistrationStatus.status) !== 'UPCOMING') {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `You can not update this offered course as it is ${semesterRegistrationStatus === null || semesterRegistrationStatus === void 0 ? void 0 : semesterRegistrationStatus.status}`);
     }
     const assignedSchedules = yield OfferedCourse_model_1.OfferedCourse.find({
         semesterRegistration,
         faculty,
-        days: { $in: days }
+        days: { $in: days },
     }).select('days startTime endTime');
     const newSchedule = {
         days,
         startTime,
-        endTime
+        endTime,
     };
     if ((0, OfferedCourse_utils_1.hasTimeConflict)(assignedSchedules, newSchedule)) {
         throw new AppError_1.default(http_status_1.default.CONFLICT, `This faculty is not available at that time ! Choose other time or day`);
     }
-    const result = yield OfferedCourse_model_1.OfferedCourse.findByIdAndUpdate(id, payload, { new: true });
+    const result = yield OfferedCourse_model_1.OfferedCourse.findByIdAndUpdate(id, payload, {
+        new: true,
+    });
     return result;
 });
 exports.OfferedCourseServices = {

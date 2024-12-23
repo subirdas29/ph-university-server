@@ -34,12 +34,11 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const user_model_1 = require("../user/user.model");
 const getAllFacultyFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const facultyQuery = new QueryBuilder_1.default(faculty_model_1.Faculty.find()
-        .populate({
+    const facultyQuery = new QueryBuilder_1.default(faculty_model_1.Faculty.find().populate({
         path: 'academicDepartment',
         populate: {
-            path: "academicFaculty"
-        }
+            path: 'academicFaculty',
+        },
     }), query)
         .search(faculty_constant_1.FacultySearchableFields)
         .filter()
@@ -57,11 +56,15 @@ const updateFacultyFromDB = (id, payload) => __awaiter(void 0, void 0, void 0, f
     const { name } = payload, remainingData = __rest(payload, ["name"]);
     const modifiedUpdatedData = Object.assign({}, remainingData);
     if (name && Object.keys(name).length) {
-        for (const [key, value] of Object.entries(name)) { //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
+        for (const [key, value] of Object.entries(name)) {
+            //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
             modifiedUpdatedData[`name.${key}`] = value; //name.firstName = 'joy'
         }
     }
-    const result = yield faculty_model_1.Faculty.findByIdAndUpdate(id, modifiedUpdatedData, { new: true, runValidators: true });
+    const result = yield faculty_model_1.Faculty.findByIdAndUpdate(id, modifiedUpdatedData, {
+        new: true,
+        runValidators: true,
+    });
     return result;
 });
 const deleteFacultyFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -89,5 +92,5 @@ exports.FacultyServices = {
     getAllFacultyFromDB,
     getOneFacultyFromDB,
     updateFacultyFromDB,
-    deleteFacultyFromDB
+    deleteFacultyFromDB,
 };

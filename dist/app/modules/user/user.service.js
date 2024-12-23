@@ -80,7 +80,7 @@ const createStudentIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
 //   throw new Error('User already Exists!')
 // }
 // const result = await student.save(); //built in instance method of mongoose
-//Create Faculty 
+//Create Faculty
 const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = {};
     userData.role = 'faculty';
@@ -160,9 +160,16 @@ const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
     }
     return result;
 });
+const changeStatus = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.findByIdAndUpdate(id, payload, {
+        new: true
+    });
+    return result;
+});
 exports.UserServices = {
     createStudentIntoDB,
     createFacultyIntoDB,
     createAdminIntoDB,
-    getMe
+    getMe,
+    changeStatus
 };

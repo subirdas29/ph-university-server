@@ -26,7 +26,9 @@ const updateCourseValidationSchema = zod_1.z.object({
         prefix: zod_1.z.string().optional(),
         code: zod_1.z.number().optional(),
         credits: zod_1.z.number().optional(),
-        preRequisiteCourses: zod_1.z.array(updatePreRequisiteCourseValidationSchema).optional(),
+        preRequisiteCourses: zod_1.z
+            .array(updatePreRequisiteCourseValidationSchema)
+            .optional(),
         isDeleted: zod_1.z.boolean().optional(),
     }),
 });
@@ -38,5 +40,5 @@ const facultiesWithCourseValidationSchema = zod_1.z.object({
 exports.CourseValidations = {
     createCourseValidationSchema,
     updateCourseValidationSchema,
-    facultiesWithCourseValidationSchema
+    facultiesWithCourseValidationSchema,
 };

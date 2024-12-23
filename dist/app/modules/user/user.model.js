@@ -17,6 +17,7 @@ const mongoose_1 = require("mongoose");
 const mongoose_2 = require("mongoose");
 const config_1 = __importDefault(require("../../config"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const user_constant_1 = require("./user.constant");
 const userSchema = new mongoose_1.Schema({
     id: {
         type: String,
@@ -38,7 +39,7 @@ const userSchema = new mongoose_1.Schema({
         default: true,
     },
     passwordChangedAt: {
-        type: Date
+        type: Date,
     },
     role: {
         type: String,
@@ -46,7 +47,7 @@ const userSchema = new mongoose_1.Schema({
     },
     status: {
         type: String,
-        enum: ['in-progress', 'blocked'],
+        enum: user_constant_1.Status,
         default: 'in-progress',
     },
     isDeleted: {

@@ -46,12 +46,12 @@ exports.Course = (0, mongoose_1.model)('Course', courseSchema);
 const courseFacultySchema = new mongoose_1.Schema({
     course: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: 'Course',
         unique: true,
     },
     faculties: {
         type: [mongoose_1.Schema.Types.ObjectId],
-        ref: "Faculty"
-    }
+        ref: 'Faculty',
+    },
 });
 exports.CourseFaculty = (0, mongoose_1.model)('CourseFaculty', courseFacultySchema);

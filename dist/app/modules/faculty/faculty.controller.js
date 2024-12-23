@@ -25,7 +25,7 @@ const getAllFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Faculty is receive successfully',
-        data: result
+        data: result,
     });
 }));
 const getOneFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -35,7 +35,7 @@ const getOneFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Faculty is receive successfully',
-        data: result
+        data: result,
     });
 }));
 const updateFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -63,5 +63,5 @@ exports.FacultyController = {
     getAllFaculty,
     getOneFaculty,
     updateFaculty,
-    deleteFaculty
+    deleteFaculty,
 };

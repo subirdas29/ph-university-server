@@ -51,8 +51,8 @@ const updateSingleCourse = (0, catchAsync_1.default)((req, res) => __awaiter(voi
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: "Course updated successfully",
-        data: result
+        message: 'Course updated successfully',
+        data: result,
     });
 }));
 const deleteCourse = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -94,5 +94,5 @@ exports.CourseControllers = {
     updateSingleCourse,
     deleteCourse,
     assignFacultiesWithCourse,
-    removeFacultiesWithCourse
+    removeFacultiesWithCourse,
 };

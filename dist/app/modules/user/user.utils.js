@@ -40,11 +40,13 @@ const generatedStudentId = (payload) => __awaiter(void 0, void 0, void 0, functi
 exports.generatedStudentId = generatedStudentId;
 const findLastFacultyId = () => __awaiter(void 0, void 0, void 0, function* () {
     const latestFaculty = yield user_model_1.User.findOne({
-        role: 'faculty'
+        role: 'faculty',
     }, {
         id: 1,
-        _id: 0
-    }).sort({ createdAt: -1 }).lean();
+        _id: 0,
+    })
+        .sort({ createdAt: -1 })
+        .lean();
     return (latestFaculty === null || latestFaculty === void 0 ? void 0 : latestFaculty.id) ? latestFaculty === null || latestFaculty === void 0 ? void 0 : latestFaculty.id : undefined;
 });
 const generatedFacultyId = () => __awaiter(void 0, void 0, void 0, function* () {

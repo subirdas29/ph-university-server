@@ -23,17 +23,19 @@ const createSemesterRegistrationIntoDB = (payload) => __awaiter(void 0, void 0, 
     const academicSemester = payload === null || payload === void 0 ? void 0 : payload.academicSemester;
     const isAcademicSemesterExists = yield academicSemester_model_1.AcademicSemester.findById(academicSemester);
     if (!isAcademicSemesterExists) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This Academic Semester not found !");
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This Academic Semester not found !');
     }
-    const isSemesterRegistrationExists = yield semesterRegistration_model_1.SemesterRegistration.findOne({ academicSemester });
+    const isSemesterRegistrationExists = yield semesterRegistration_model_1.SemesterRegistration.findOne({
+        academicSemester,
+    });
     if (isSemesterRegistrationExists) {
-        throw new AppError_1.default(http_status_1.default.CONFLICT, "This academic Semester already Exists");
+        throw new AppError_1.default(http_status_1.default.CONFLICT, 'This academic Semester already Exists');
     }
     const isThereAnyUpcomingOrOngoingSemester = yield semesterRegistration_model_1.SemesterRegistration.findOne({
         $or: [
             { status: semesterRegistration_constant_1.RegistrationStatus.UPCOMING },
-            { status: semesterRegistration_constant_1.RegistrationStatus.ONGOING }
-        ]
+            { status: semesterRegistration_constant_1.RegistrationStatus.ONGOING },
+        ],
     });
     if (isThereAnyUpcomingOrOngoingSemester) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `There is already an ${isThereAnyUpcomingOrOngoingSemester.status} registered semester`);
@@ -57,21 +59,23 @@ const getSingleSemesterRegistrationsFromDB = (id) => __awaiter(void 0, void 0, v
 const updateSemesterRegistrationIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isSemesterRegistrationExists = yield semesterRegistration_model_1.SemesterRegistration.findById(id);
     if (!isSemesterRegistrationExists) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "This Semester is not found!");
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'This Semester is not found!');
     }
     const currentSemesterStatus = isSemesterRegistrationExists === null || isSemesterRegistrationExists === void 0 ? void 0 : isSemesterRegistrationExists.status;
     const requestedStatus = payload === null || payload === void 0 ? void 0 : payload.status;
     if (currentSemesterStatus === semesterRegistration_constant_1.RegistrationStatus.ENDED) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `This semester already ${currentSemesterStatus}`);
     }
-    if (currentSemesterStatus === semesterRegistration_constant_1.RegistrationStatus.UPCOMING && requestedStatus === semesterRegistration_constant_1.RegistrationStatus.ENDED) {
+    if (currentSemesterStatus === semesterRegistration_constant_1.RegistrationStatus.UPCOMING &&
+        requestedStatus === semesterRegistration_constant_1.RegistrationStatus.ENDED) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `You can not directly change status from ${currentSemesterStatus} to ${requestedStatus}`);
     }
-    if (currentSemesterStatus === semesterRegistration_constant_1.RegistrationStatus.ONGOING && requestedStatus === semesterRegistration_constant_1.RegistrationStatus.UPCOMING) {
+    if (currentSemesterStatus === semesterRegistration_constant_1.RegistrationStatus.ONGOING &&
+        requestedStatus === semesterRegistration_constant_1.RegistrationStatus.UPCOMING) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `You can not directly change status from ${currentSemesterStatus} to ${requestedStatus}`);
     }
     const result = yield semesterRegistration_model_1.SemesterRegistration.findByIdAndUpdate(id, payload, {
-        new: true
+        new: true,
     });
     return result;
 });
@@ -79,5 +83,5 @@ exports.SemesterRegistrationService = {
     createSemesterRegistrationIntoDB,
     getAllSemesterRegistrationsFromDB,
     getSingleSemesterRegistrationsFromDB,
-    updateSemesterRegistrationIntoDB
+    updateSemesterRegistrationIntoDB,
 };

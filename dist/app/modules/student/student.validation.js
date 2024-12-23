@@ -159,5 +159,5 @@ exports.updateStudentValidationSchema = zod_1.z.object({
 });
 exports.studentValidations = {
     createStudentValidationSchema,
-    updateStudentValidationSchema: exports.updateStudentValidationSchema
+    updateStudentValidationSchema: exports.updateStudentValidationSchema,
 };

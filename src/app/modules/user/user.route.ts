@@ -6,6 +6,7 @@ import { facultyValidations } from '../faculty/faculty.validation';
 import { createAdminValidationSchema } from '../admin/admin.validation';
 import auth from '../../middlewares/auth';
 import { USER_ROLES } from './user.constant';
+import { UserValidation } from './user.validation';
 
 const router = express.Router();
 
@@ -24,6 +25,8 @@ router.post(
   UserControllers.createFacultyController,
 );
 
+
+
 router.post(
   '/create-admin',
   validationRequest(createAdminValidationSchema),
@@ -35,5 +38,9 @@ router.get(
   auth(USER_ROLES.admin, USER_ROLES.student, USER_ROLES.faculty),
   UserControllers.getMe,
 );
+
+router.post('/change-status/:id',auth(USER_ROLES.admin),
+  validationRequest(UserValidation.changeStatusValidationSchema),
+  UserControllers.changeStatus);
 
 export const UserRoutes = router; // eta nijei ekta object tai alada kore object create korar drkr nai.

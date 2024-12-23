@@ -36,7 +36,12 @@ const createCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0, functi
     return result;
 });
 const getAllCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const courseQuery = new QueryBuilder_1.default(course_model_1.Course.find().populate('preRequisiteCourses.course'), query).search(course_constant_1.CourseSearchableFields).filter().sort().paginate().fields();
+    const courseQuery = new QueryBuilder_1.default(course_model_1.Course.find().populate('preRequisiteCourses.course'), query)
+        .search(course_constant_1.CourseSearchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
     const result = yield courseQuery.modelQuery;
     return result;
 });
@@ -50,26 +55,34 @@ const updateSingleCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, void
     try {
         session.startTransaction();
         const updateBasicCourseInfo = yield course_model_1.Course.findByIdAndUpdate(id, remainingCourseData, {
-            new: true, runValidators: true, session
+            new: true,
+            runValidators: true,
+            session,
         });
         if (!updateBasicCourseInfo) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to updated basic course');
         }
         if (preRequisiteCourses && preRequisiteCourses.length > 0) {
-            const deletePreRequisite = preRequisiteCourses === null || preRequisiteCourses === void 0 ? void 0 : preRequisiteCourses.filter(el => el.course && el.isDeleted).map(el => el.course);
+            const deletePreRequisite = preRequisiteCourses === null || preRequisiteCourses === void 0 ? void 0 : preRequisiteCourses.filter((el) => el.course && el.isDeleted).map((el) => el.course);
             const deletePreRequisiteCourses = yield course_model_1.Course.findByIdAndUpdate(id, {
-                $pull: { preRequisiteCourses: { course: { $in: deletePreRequisite } } }
+                $pull: {
+                    preRequisiteCourses: { course: { $in: deletePreRequisite } },
+                },
             }, {
-                new: true, runValidators: true, session
+                new: true,
+                runValidators: true,
+                session,
             });
             if (!deletePreRequisiteCourses) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to deleted PreRequisite course');
             }
-            const newPreRequisite = preRequisiteCourses === null || preRequisiteCourses === void 0 ? void 0 : preRequisiteCourses.filter(el => el.course && !el.isDeleted);
+            const newPreRequisite = preRequisiteCourses === null || preRequisiteCourses === void 0 ? void 0 : preRequisiteCourses.filter((el) => el.course && !el.isDeleted);
             const newPreRequisiteCourses = yield course_model_1.Course.findByIdAndUpdate(id, {
-                $addToSet: { preRequisiteCourses: { $each: newPreRequisite } }
+                $addToSet: { preRequisiteCourses: { $each: newPreRequisite } },
             }, {
-                new: true, runValidators: true, session
+                new: true,
+                runValidators: true,
+                session,
             });
             if (!newPreRequisiteCourses) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to add PreRequisite course');
@@ -93,9 +106,10 @@ const deleteCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* (
     return result;
 });
 const assignFacultiesWithCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    //ekhane id ta theke course ta pabo, ar payload theke faculties data gula array hisabe pabo.
     const result = yield course_model_1.CourseFaculty.findByIdAndUpdate(id, {
         course: id,
-        $addToSet: { faculties: { $each: payload } }
+        $addToSet: { faculties: { $each: payload } },
     }, {
         upsert: true, //course & er under ag e theke faculty na thkle ta create korte hbe.erpr new kono faculty asle ta create na kore faculties array te add korte hbe tai upsert use hyse
         new: true,
@@ -104,7 +118,7 @@ const assignFacultiesWithCourseIntoDB = (id, payload) => __awaiter(void 0, void 
 });
 const removeFacultiesWithCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield course_model_1.CourseFaculty.findByIdAndUpdate(id, {
-        $pull: { faculties: { $in: payload } }
+        $pull: { faculties: { $in: payload } },
     }, {
         new: true,
     });
@@ -117,5 +131,5 @@ exports.CourseServices = {
     updateSingleCourseIntoDB,
     deleteCourseFromDB,
     assignFacultiesWithCourseIntoDB,
-    removeFacultiesWithCourseIntoDB
+    removeFacultiesWithCourseIntoDB,
 };

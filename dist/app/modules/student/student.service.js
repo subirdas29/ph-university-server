@@ -35,18 +35,18 @@ const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const student_constant_1 = require("./student.constant");
 const getAllStudentFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
     // const queryObj = {...query} //delete krbo tai copy niya rakte hbe
-    // let searchTerm = ''   // SET DEFAULT VALUE 
+    // let searchTerm = ''   // SET DEFAULT VALUE
     // IF searchTerm  IS GIVEN SET IT
     // if(query?.searchTerm){
     //   searchTerm = query?.searchTerm as string
     // }
-    // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH  : 
+    // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH  :
     // { email: { $regex : query.searchTerm , $options: i}}
     // { presentAddress: { $regex : query.searchTerm , $options: i}}
     // { 'name.firstName': { $regex : query.searchTerm , $options: i}}
     // WE ARE DYNAMICALLY DOING IT USING LOOP
     //partial match
-    // const searchQuery = Student.find({  //ekhane await soho anbo na karon ekhane promise resolve korbo na..chaining kore porer ta te await diya promise resolve korbo 
+    // const searchQuery = Student.find({  //ekhane await soho anbo na karon ekhane promise resolve korbo na..chaining kore porer ta te await diya promise resolve korbo
     //   $or:studentSearchableFields.map((field)=>({
     //     [field] : {$regex:searchTerm, $options:'i'} //partial match er maddhome purata pabo
     //   }))
@@ -54,7 +54,7 @@ const getAllStudentFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
     //filtering
     // const excludeFields:string[] = ['searchTerm','sort','limit','page','fields']
     // excludeFields.forEach((el)=> delete queryObj[el]) // filtering er jonno partial match er jinis bad dite hbe
-    //exact match kore 
+    //exact match kore
     // const filterQuery = searchQuery.find(queryObj) // uporer searchQuery te partial match er query tar maddhome pura data nibe kintu abr sei uporer query ta ae line e await diya execution er moddhe abr jkn object query ta calano hoi tkn exact match khuje mane filtering kaj krte cai partial match ta na.karon ae query te jei data object hisabe ashe sei data exact match kore.ekhane eta chaning system e kaj kore
     // .populate('admissionSemester')
     // .populate({
@@ -89,14 +89,20 @@ const getAllStudentFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
     // }
     // const fieldsQuery = await limitQuery.select(fields)
     // return fieldsQuery;
-    const studentQuery = new QueryBuilder_1.default(student_model_1.Student.find().populate('user')
+    const studentQuery = new QueryBuilder_1.default(student_model_1.Student.find()
+        .populate('user')
         .populate('admissionSemester')
         .populate({
         path: 'admissionDepartment',
         populate: {
             path: 'academicFaculty',
         },
-    }), query).search(student_constant_1.studentSearchableFields).filter().sort().paginate().fields();
+    }), query)
+        .search(student_constant_1.studentSearchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
     const result = yield studentQuery.modelQuery;
     return result;
 });
@@ -116,7 +122,8 @@ const updateStudentFromDB = (id, payload) => __awaiter(void 0, void 0, void 0, f
     const { name, guardian, localGuardian } = payload, remainingData = __rest(payload, ["name", "guardian", "localGuardian"]);
     const modifiedUpdatedData = Object.assign({}, remainingData);
     if (name && Object.keys(name).length) {
-        for (const [key, value] of Object.entries(name)) { //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
+        for (const [key, value] of Object.entries(name)) {
+            //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
             modifiedUpdatedData[`name.${key}`] = value; //name.firstName = 'joy'
         }
     }
@@ -130,7 +137,10 @@ const updateStudentFromDB = (id, payload) => __awaiter(void 0, void 0, void 0, f
             modifiedUpdatedData[`localGuardian.${key}`] = value;
         }
     }
-    const result = yield student_model_1.Student.findOneAndUpdate({ id }, modifiedUpdatedData, { new: true, runValidators: true });
+    const result = yield student_model_1.Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
+        new: true,
+        runValidators: true,
+    });
     return result;
 });
 const deleteStudentFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {

@@ -33,16 +33,17 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
     const result = yield auth_service_1.AuthServices.loginUser(req.body);
     const { refreshToken, accessToken, needPasswordChange } = result;
     res.cookie('refreshToken', refreshToken, {
-        secure: config_1.default.NODE_ENV === "production", // development mode e http te kaj korbe.ete secure false thake. kintu production mode e https kaj korbe ete secure true hbe
-        httpOnly: true // eta jate js dara modify kora na jai tai httponly kora hyse
+        secure: config_1.default.NODE_ENV === 'production', // development mode e http te kaj korbe.ete secure false thake. kintu production mode e https kaj korbe ete secure true hbe
+        httpOnly: true, // eta jate js dara modify kora na jai tai httponly kora hyse
     });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'User is logged in successfully!',
         data: {
-            accessToken, needPasswordChange
-        }
+            accessToken,
+            needPasswordChange,
+        },
     });
 }));
 const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -52,7 +53,7 @@ const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Password is update successfully!',
-        data: result
+        data: result,
     });
 }));
 const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -62,7 +63,7 @@ const refreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Access Token is retrieved successfully!',
-        data: result
+        data: result,
     });
 }));
 const forgetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -72,7 +73,7 @@ const forgetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Reset Link is generated successfully!',
-        data: result
+        data: result,
     });
 }));
 const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -82,7 +83,7 @@ const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Password reset successful!',
-        data: result
+        data: result,
     });
 }));
 exports.AuthControllers = {
@@ -90,5 +91,5 @@ exports.AuthControllers = {
     changePassword,
     refreshToken,
     forgetPassword,
-    resetPassword
+    resetPassword,
 };

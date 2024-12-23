@@ -59,5 +59,5 @@ exports.SemesterRegistrationController = {
     createSemesterRegistration,
     getAllSemesterRegistrations,
     getSingleSemesterRegistration,
-    updateSemesterRegistration
+    updateSemesterRegistration,
 };

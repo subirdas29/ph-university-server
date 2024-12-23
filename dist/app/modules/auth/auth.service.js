@@ -33,12 +33,12 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is already deleted
     const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
     if (isUserDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is deleted');
     }
     // checking if the user is blocked
     const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
     if (isUserBlocked === 'blocked') {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is blocked');
     }
     //checking if the password is correct
     if (!(yield user_model_1.User.isPasswordMatched(payload === null || payload === void 0 ? void 0 : payload.password, user === null || user === void 0 ? void 0 : user.password))) {
@@ -47,14 +47,14 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     //create token and send to the client
     const jwtPayload = {
         userId: user === null || user === void 0 ? void 0 : user.id,
-        role: user === null || user === void 0 ? void 0 : user.role
+        role: user === null || user === void 0 ? void 0 : user.role,
     };
     const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
     const refreshToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_refresh_secret, config_1.default.jwt_refresh_expires_in);
     return {
         accessToken,
         refreshToken,
-        needPasswordChange: user === null || user === void 0 ? void 0 : user.needsPasswordChange
+        needPasswordChange: user === null || user === void 0 ? void 0 : user.needsPasswordChange,
     };
 });
 const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,12 +65,12 @@ const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, 
     // checking if the user is already deleted
     const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
     if (isUserDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is deleted');
     }
     // checking if the user is blocked
     const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
     if (isUserBlocked === 'blocked') {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is blocked');
     }
     //checking if the password is correct
     if (!(yield user_model_1.User.isPasswordMatched(payload === null || payload === void 0 ? void 0 : payload.oldPassword, user === null || user === void 0 ? void 0 : user.password))) {
@@ -80,7 +80,7 @@ const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, 
     const newHashedPassword = yield bcrypt_1.default.hash(payload === null || payload === void 0 ? void 0 : payload.newPassword, Number(config_1.default.bcrypt_salt_rounds));
     yield user_model_1.User.findOneAndUpdate({
         id: userData === null || userData === void 0 ? void 0 : userData.userId,
-        role: userData === null || userData === void 0 ? void 0 : userData.role
+        role: userData === null || userData === void 0 ? void 0 : userData.role,
     }, {
         password: newHashedPassword,
         needsPasswordChange: false,
@@ -90,7 +90,7 @@ const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, 
 });
 const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     if (!token) {
-        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
+        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized');
     }
     const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_refresh_secret);
     const { userId, iat } = decoded;
@@ -101,12 +101,12 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is already deleted
     const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
     if (isUserDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is deleted');
     }
     // checking if the user is blocked
     const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
     if (isUserBlocked === 'blocked') {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is blocked');
     }
     if (user.passwordChangedAt &&
         user_model_1.User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat)) {
@@ -114,7 +114,7 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const jwtPayload = {
         userId: user === null || user === void 0 ? void 0 : user.id,
-        role: user === null || user === void 0 ? void 0 : user.role
+        role: user === null || user === void 0 ? void 0 : user.role,
     };
     const accessToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
     return {
@@ -129,16 +129,16 @@ const forgetPassword = (userId) => __awaiter(void 0, void 0, void 0, function* (
     // checking if the user is already deleted
     const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
     if (isUserDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is deleted');
     }
     // checking if the user is blocked
     const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
     if (isUserBlocked === 'blocked') {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is blocked');
     }
     const jwtPayload = {
         userId: user === null || user === void 0 ? void 0 : user.id,
-        role: user === null || user === void 0 ? void 0 : user.role
+        role: user === null || user === void 0 ? void 0 : user.role,
     };
     const resetToken = (0, auth_utils_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '10m');
     const resetUILink = `{${config_1.default.reset_pass_ui_link}?id=${user === null || user === void 0 ? void 0 : user.id}&token=${resetToken}}`;
@@ -146,7 +146,7 @@ const forgetPassword = (userId) => __awaiter(void 0, void 0, void 0, function* (
 });
 const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
     if (!token) {
-        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized");
+        throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized');
     }
     const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
     const { userId } = decoded;
@@ -157,21 +157,21 @@ const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, func
     // checking if the user is already deleted
     const isUserDeleted = user === null || user === void 0 ? void 0 : user.isDeleted;
     if (isUserDeleted) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is deleted");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is deleted');
     }
     // checking if the user is blocked
     const isUserBlocked = user === null || user === void 0 ? void 0 : user.status;
     if (isUserBlocked === 'blocked') {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "This user is blocked");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'This user is blocked');
     }
     if ((decoded === null || decoded === void 0 ? void 0 : decoded.userId) !== (payload === null || payload === void 0 ? void 0 : payload.id)) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "You are forbidden");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'You are forbidden');
     }
     //hash new password
     const newHashedPassword = yield bcrypt_1.default.hash(payload === null || payload === void 0 ? void 0 : payload.newPassword, Number(config_1.default.bcrypt_salt_rounds));
     yield user_model_1.User.findOneAndUpdate({
         id: decoded === null || decoded === void 0 ? void 0 : decoded.userId,
-        role: decoded === null || decoded === void 0 ? void 0 : decoded.role
+        role: decoded === null || decoded === void 0 ? void 0 : decoded.role,
     }, {
         password: newHashedPassword,
         needsPasswordChange: false,
@@ -183,5 +183,5 @@ exports.AuthServices = {
     changePassword,
     refreshToken,
     forgetPassword,
-    resetPassword
+    resetPassword,
 };
