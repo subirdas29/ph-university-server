@@ -74,7 +74,8 @@ const createStudentValidationSchema = z.object({
     password: z
       .string()
       .trim()
-      .max(20, { message: 'Password cannot more than 20' }),
+      .max(20, { message: 'Password cannot more than 20' })
+      .optional(),
     student: z.object({
       name: userNameValidationSchema,
       gender: z.enum(['Male', 'Female', 'Others'], {
@@ -107,13 +108,6 @@ const createStudentValidationSchema = z.object({
       localGuardian: localGuardianValidationSchema,
       admissionDepartment: z.string(),
       admissionSemester: z.string(),
-      profileImg: z
-        .string()
-        .url({ message: 'Profile image must be a valid URL' })
-        .optional()
-        .refine((value) => /\.(jpg|jpeg|png|gif|bmp)$/i.test(value || ''), {
-          message: 'Profile image must link to a valid image file',
-        }),
     }),
   }),
 });
@@ -157,7 +151,6 @@ export const updateStudentValidationSchema = z.object({
       guardian: updateGuardianValidationSchema.optional(),
       localGuardian: updateLocalGuardianValidationSchema.optional(),
       admissionSemester: z.string().optional(),
-      profileImg: z.string().optional(),
       academicDepartment: z.string().optional(),
     }),
   }),

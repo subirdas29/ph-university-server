@@ -25,7 +25,7 @@ const createStudentController = (0, catchAsync_1.default)((req, res) => __awaite
     //data validation using joi
     // const { error,value } = studentValidationSchema.validate(studentData);//3rd party joi schema diya validation kora hyse
     //route theke call hoi asar por controller e asbe, then service function e call hbe.service business logic er kaj korbe
-    const result = yield user_service_1.UserServices.createStudentIntoDB(password, studentData);
+    const result = yield user_service_1.UserServices.createStudentIntoDB(req.file, password, studentData);
     // if(error){ // Joi validation error message
     //   res.status(500).json({
     //     success: false,

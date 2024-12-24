@@ -73,7 +73,8 @@ const createStudentValidationSchema = zod_1.z.object({
         password: zod_1.z
             .string()
             .trim()
-            .max(20, { message: 'Password cannot more than 20' }),
+            .max(20, { message: 'Password cannot more than 20' })
+            .optional(),
         student: zod_1.z.object({
             name: userNameValidationSchema,
             gender: zod_1.z.enum(['Male', 'Female', 'Others'], {
@@ -106,13 +107,6 @@ const createStudentValidationSchema = zod_1.z.object({
             localGuardian: localGuardianValidationSchema,
             admissionDepartment: zod_1.z.string(),
             admissionSemester: zod_1.z.string(),
-            profileImg: zod_1.z
-                .string()
-                .url({ message: 'Profile image must be a valid URL' })
-                .optional()
-                .refine((value) => /\.(jpg|jpeg|png|gif|bmp)$/i.test(value || ''), {
-                message: 'Profile image must link to a valid image file',
-            }),
         }),
     }),
 });
@@ -152,7 +146,6 @@ exports.updateStudentValidationSchema = zod_1.z.object({
             guardian: updateGuardianValidationSchema.optional(),
             localGuardian: updateLocalGuardianValidationSchema.optional(),
             admissionSemester: zod_1.z.string().optional(),
-            profileImg: zod_1.z.string().optional(),
             academicDepartment: zod_1.z.string().optional(),
         }),
     }),

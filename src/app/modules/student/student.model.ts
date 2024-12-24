@@ -182,15 +182,8 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: localGuardianSchema,
       required: [true, 'Local guardian details are required'],
     },
-    profileImg: {
-      type: String,
-      validate: {
-        validator: function (value: string) {
-          return /^https?:\/\/.+\.(jpg|jpeg|png|gif|bmp)$/i.test(value);
-        },
-        message: 'Profile image must be a valid URL linking to an image file',
-      },
-    },
+    profileImg: { type: String },
+
     admissionDepartment: {
       type: Schema.Types.ObjectId,
       ref: 'AcademicDepartment',

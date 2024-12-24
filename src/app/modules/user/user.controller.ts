@@ -15,7 +15,11 @@ const createStudentController = catchAsync(async (req, res) => {
   // const { error,value } = studentValidationSchema.validate(studentData);//3rd party joi schema diya validation kora hyse
   //route theke call hoi asar por controller e asbe, then service function e call hbe.service business logic er kaj korbe
 
-  const result = await UserServices.createStudentIntoDB(password, studentData);
+  const result = await UserServices.createStudentIntoDB(
+    req.file,
+    password,
+    studentData,
+  );
 
   // if(error){ // Joi validation error message
   //   res.status(500).json({
@@ -81,19 +85,17 @@ const getMe = catchAsync(async (req, res) => {
   });
 });
 
-
 const changeStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
 
-  const {id} = req.params
-
-  const result = await UserServices.changeStatus(id,req.body)
+  const result = await UserServices.changeStatus(id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User is retrieved successfully',
     data: result,
   });
-})
+});
 
 export const UserControllers = {
   createStudentController,

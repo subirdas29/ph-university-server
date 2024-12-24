@@ -13,12 +13,12 @@ const userValidationSchema = z.object({
 });
 
 const changeStatusValidationSchema = z.object({
-  body:z.object({
-    status:z.enum([...Status] as [string,...string[]])
-  })
-})
+  body: z.object({
+    status: z.enum([...Status] as [string, ...string[]]),
+  }),
+});
 
 export const UserValidation = {
   userValidationSchema,
-  changeStatusValidationSchema
+  changeStatusValidationSchema,
 };

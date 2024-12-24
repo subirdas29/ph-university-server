@@ -25,9 +25,11 @@ const user_utils_1 = require("./user.utils");
 const mongoose_1 = __importDefault(require("mongoose"));
 const faculty_model_1 = require("../faculty/faculty.model");
 const admin_model_1 = require("../admin/admin.model");
+const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
 //create Student
-const createStudentIntoDB = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // controller theke service e asar por service model er upor dbquery calai database e data insert korbe.
+    var _a;
     // if (await Student.isUserExists(payload.id)) {
     //   throw new Error('User already Exists!');
     // }
@@ -50,6 +52,9 @@ const createStudentIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
         //set  generated id
         userData.id = yield (0, user_utils_1.generatedStudentId)(admissionSemester);
         //create a user
+        const imageName = `${userData === null || userData === void 0 ? void 0 : userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+        const path = file === null || file === void 0 ? void 0 : file.path;
+        const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
         //(Transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session }); //transaction e data array hisabe ashe. tai [useData] array hisabe diya hyse
         //create a student
@@ -59,6 +64,7 @@ const createStudentIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
         }
         payload.id = newUser[0].id; //embedded id
         payload.user = newUser[0]._id; //reference id
+        payload.profileImg = secure_url;
         //(Transaction-2)
         const newStudent = yield student_model_1.Student.create([payload], { session });
         if (!newStudent.length) {
@@ -162,7 +168,7 @@ const getMe = (userId, role) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const changeStatus = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.User.findByIdAndUpdate(id, payload, {
-        new: true
+        new: true,
     });
     return result;
 });
@@ -171,5 +177,5 @@ exports.UserServices = {
     createFacultyIntoDB,
     createAdminIntoDB,
     getMe,
-    changeStatus
+    changeStatus,
 };

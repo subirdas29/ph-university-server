@@ -15,10 +15,10 @@ const userValidationSchema = zod_1.z.object({
 });
 const changeStatusValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
-        status: zod_1.z.enum([...user_constant_1.Status])
-    })
+        status: zod_1.z.enum([...user_constant_1.Status]),
+    }),
 });
 exports.UserValidation = {
     userValidationSchema,
-    changeStatusValidationSchema
+    changeStatusValidationSchema,
 };

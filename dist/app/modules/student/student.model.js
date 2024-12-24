@@ -180,15 +180,7 @@ const studentSchema = new mongoose_1.Schema({
         type: localGuardianSchema,
         required: [true, 'Local guardian details are required'],
     },
-    profileImg: {
-        type: String,
-        validate: {
-            validator: function (value) {
-                return /^https?:\/\/.+\.(jpg|jpeg|png|gif|bmp)$/i.test(value);
-            },
-            message: 'Profile image must be a valid URL linking to an image file',
-        },
-    },
+    profileImg: { type: String },
     admissionDepartment: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'AcademicDepartment',

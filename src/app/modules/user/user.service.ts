@@ -20,9 +20,14 @@ import { Faculty } from '../faculty/faculty.model';
 import { TAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import { verifyToken } from '../auth/auth.utils';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
 //create Student
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: TStudent,
+) => {
   // controller theke service e asar por service model er upor dbquery calai database e data insert korbe.
 
   // if (await Student.isUserExists(payload.id)) {
@@ -34,6 +39,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   //set student role
   userData.role = 'student';
   userData.email = payload?.email;
+
   // find academic semester info
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
@@ -53,6 +59,12 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     //set  generated id
     userData.id = await generatedStudentId(admissionSemester);
     //create a user
+
+    const imageName = `${userData?.id}${payload?.name?.firstName}`;
+    const path = file?.path;
+
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+
     //(Transaction-1)
     const newUser = await User.create([userData], { session }); //transaction e data array hisabe ashe. tai [useData] array hisabe diya hyse
     //create a student
@@ -64,6 +76,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
     payload.id = newUser[0].id; //embedded id
     payload.user = newUser[0]._id; //reference id
+    payload.profileImg = secure_url;
 
     //(Transaction-2)
     const newStudent = await Student.create([payload], { session });
@@ -194,18 +207,17 @@ const getMe = async (userId: string, role: string) => {
   return result;
 };
 
-
-const changeStatus = async (id:string,payload:{status:string})=>{
-  const result = await User.findByIdAndUpdate(id,payload,{
-    new:true
-  })
-  return result
-}
+const changeStatus = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+  return result;
+};
 
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
   getMe,
-  changeStatus
+  changeStatus,
 };
