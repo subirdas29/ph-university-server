@@ -3,7 +3,10 @@ import sendResponse from "../../utils/sendResponse";
 import { EnrolledCourseService } from "./enrolledCourse.service";
 
 const createEnrolledCourse = catchAsync(async(req,res)=>{
-    const result = await EnrolledCourseService.createEnrolledCourse(req.body)
+
+    const userId = req.user.userId
+
+    const result = await EnrolledCourseService.createEnrolledCourse(userId,req.body)
 
     sendResponse(res,{
         statusCode: 201,
