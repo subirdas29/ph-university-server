@@ -2,11 +2,13 @@ import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { SemesterRegistrationController } from './semesterRegistration.controller';
 import { SemesterRegistrationValidations } from './semesterRegistration.validation';
+import auth from '../../middlewares/auth';
+import { USER_ROLES } from '../user/user.constant';
 
 const router = express.Router();
 
 router.post(
-  '/create-semester-registration',
+  '/create-semester-registration', auth(USER_ROLES.superAdmin,USER_ROLES.admin),
   validateRequest(
     SemesterRegistrationValidations.createSemesterRegistrationValidationSchema,
   ),
@@ -14,7 +16,7 @@ router.post(
 );
 
 router.patch(
-  '/:id',
+  '/:id', auth(USER_ROLES.superAdmin,USER_ROLES.admin),
   validateRequest(
     SemesterRegistrationValidations.updateSemesterRegistrationValidationSchema,
   ),
@@ -22,15 +24,16 @@ router.patch(
 );
 
 router.get(
-  '/:id',
+  '/:id', auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty,USER_ROLES.student),
   SemesterRegistrationController.getSingleSemesterRegistration,
 );
 
-// router.delete(
-//   '/:id',
-//   SemesterRegistrationController.deleteSemesterRegistration,
-// );
+router.delete(
+  '/:id',
+  auth(USER_ROLES.superAdmin, USER_ROLES.admin),
+  SemesterRegistrationController.deleteSemesterRegistration,
+);
 
-router.get('/', SemesterRegistrationController.getAllSemesterRegistrations);
+router.get('/',auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty,USER_ROLES.student), SemesterRegistrationController.getAllSemesterRegistrations);
 
 export const semesterRegistrationRoutes = router;

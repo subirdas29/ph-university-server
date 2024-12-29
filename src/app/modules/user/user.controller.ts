@@ -39,7 +39,7 @@ const createStudentController = catchAsync(async (req, res) => {
   // });
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'data added successfully',
     data: result,
@@ -49,10 +49,10 @@ const createStudentController = catchAsync(async (req, res) => {
 const createFacultyController = catchAsync(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
 
-  const result = await UserServices.createFacultyIntoDB(password, facultyData);
+  const result = await UserServices.createFacultyIntoDB(req.file,password, facultyData);
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'data added successfully',
     data: result,
@@ -62,10 +62,10 @@ const createFacultyController = catchAsync(async (req, res) => {
 const createAdmin = catchAsync(async (req, res) => {
   const { password, admin: adminData } = req.body;
 
-  const result = await UserServices.createAdminIntoDB(password, adminData);
+  const result = await UserServices.createAdminIntoDB(req.file,password, adminData);
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'Admin is created successfully',
     data: result,

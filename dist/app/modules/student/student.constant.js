@@ -4,5 +4,6 @@ exports.studentSearchableFields = void 0;
 exports.studentSearchableFields = [
     'email',
     'name.firstName',
+    'name.lastName',
     'presentAddress',
 ];

@@ -7,11 +7,11 @@ const router = express.Router();
 
 router.get(
   '/',
-  auth(USER_ROLES.admin, USER_ROLES.faculty),
+  auth(USER_ROLES.superAdmin,USER_ROLES.admin, USER_ROLES.faculty),
   FacultyController.getAllFaculty,
 );
-router.get('/:id', FacultyController.getOneFaculty);
-router.patch('/:id', FacultyController.updateFaculty);
-router.delete('/:id', FacultyController.deleteFaculty);
+router.get('/:id',  auth(USER_ROLES.superAdmin,USER_ROLES.admin, USER_ROLES.faculty), FacultyController.getOneFaculty);
+router.patch('/:id', auth(USER_ROLES.superAdmin,USER_ROLES.admin), FacultyController.updateFaculty);
+router.delete('/:id', auth(USER_ROLES.superAdmin,USER_ROLES.admin), FacultyController.deleteFaculty);
 
 export const FacultyRoutes = router;

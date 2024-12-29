@@ -120,18 +120,33 @@ const createStudentIntoDB = async (
 // const result = await student.save(); //built in instance method of mongoose
 
 //Create Faculty
-const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
+const createFacultyIntoDB = async (file: any,password: string, payload: TFaculty) => {
   const userData: Partial<TUser> = {};
 
   userData.role = 'faculty';
   userData.password = password || (config.default_password as string);
   userData.email = payload?.email;
 
+  const academicDepartment = await AcademicDepartment.findById(payload.academicDepartment)
+
+  if(!academicDepartment) {
+    throw new AppError(httpStatus.NOT_FOUND,"Academic Department not found")
+  }
+
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
     userData.id = await generatedFacultyId();
+
+    if(file){
+      const imageName = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url;
+    }
 
     const newUser = await User.create([userData], { session });
 
@@ -158,7 +173,7 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
-const createAdminIntoDB = async (password: string, payload: TAdmin) => {
+const createAdminIntoDB = async (file: any,password: string, payload: TAdmin) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -175,6 +190,13 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
     session.startTransaction();
     //set  generated id
     userData.id = await generateAdminId();
+
+    if(file){
+      const imageName = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url;
+    }
 
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session });

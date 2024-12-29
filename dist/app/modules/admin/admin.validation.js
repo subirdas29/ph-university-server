@@ -22,7 +22,6 @@ exports.createAdminValidationSchema = zod_1.z.object({
             bloodGroup: zod_1.z.enum([...admin_constant_1.BloodGroup]),
             presentAddress: zod_1.z.string(),
             permanentAddress: zod_1.z.string(),
-            profileImg: zod_1.z.string(),
         }),
     }),
 });
@@ -44,7 +43,6 @@ exports.updateAdminValidationSchema = zod_1.z.object({
             bloodGroup: zod_1.z.enum([...admin_constant_1.BloodGroup]).optional(),
             presentAddress: zod_1.z.string().optional(),
             permanentAddress: zod_1.z.string().optional(),
-            profileImg: zod_1.z.string().optional(),
         }),
     }),
 });

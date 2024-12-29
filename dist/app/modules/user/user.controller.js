@@ -42,7 +42,7 @@ const createStudentController = (0, catchAsync_1.default)((req, res) => __awaite
     //   data: result,
     // });
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: http_status_1.default.CREATED,
         success: true,
         message: 'data added successfully',
         data: result,
@@ -50,9 +50,9 @@ const createStudentController = (0, catchAsync_1.default)((req, res) => __awaite
 }));
 const createFacultyController = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { password, faculty: facultyData } = req.body;
-    const result = yield user_service_1.UserServices.createFacultyIntoDB(password, facultyData);
+    const result = yield user_service_1.UserServices.createFacultyIntoDB(req.file, password, facultyData);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: http_status_1.default.CREATED,
         success: true,
         message: 'data added successfully',
         data: result,
@@ -60,9 +60,9 @@ const createFacultyController = (0, catchAsync_1.default)((req, res) => __awaite
 }));
 const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { password, admin: adminData } = req.body;
-    const result = yield user_service_1.UserServices.createAdminIntoDB(password, adminData);
+    const result = yield user_service_1.UserServices.createAdminIntoDB(req.file, password, adminData);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: http_status_1.default.CREATED,
         success: true,
         message: 'Admin is created successfully',
         data: result,

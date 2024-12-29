@@ -95,15 +95,27 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
 // }
 // const result = await student.save(); //built in instance method of mongoose
 //Create Faculty
-const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createFacultyIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const userData = {};
     userData.role = 'faculty';
     userData.password = password || config_1.default.default_password;
     userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
+    const academicDepartment = yield academicDepartment_model_1.AcademicDepartment.findById(payload.academicDepartment);
+    if (!academicDepartment) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Academic Department not found");
+    }
+    payload.academicFaculty = academicDepartment.academicFaculty;
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
         userData.id = yield (0, user_utils_1.generatedFacultyId)();
+        if (file) {
+            const imageName = `${userData === null || userData === void 0 ? void 0 : userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         const newUser = yield user_model_1.User.create([userData], { session });
         if (!newUser.length) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to Create User');
@@ -124,7 +136,8 @@ const createFacultyIntoDB = (password, payload) => __awaiter(void 0, void 0, voi
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to Create Faculty');
     }
 });
-const createAdminIntoDB = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createAdminIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     // create a user object
     const userData = {};
     //if password is not given , use deafult password
@@ -137,6 +150,12 @@ const createAdminIntoDB = (password, payload) => __awaiter(void 0, void 0, void 
         session.startTransaction();
         //set  generated id
         userData.id = yield (0, user_utils_1.generateAdminId)();
+        if (file) {
+            const imageName = `${userData === null || userData === void 0 ? void 0 : userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         // create a user (transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session });
         //create a admin
