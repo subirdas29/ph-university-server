@@ -43,7 +43,11 @@ const getAllCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
         .paginate()
         .fields();
     const result = yield courseQuery.modelQuery;
-    return result;
+    const meta = yield courseQuery.countTotal();
+    return {
+        meta,
+        result
+    };
 });
 const getSingleCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield course_model_1.Course.findById(id).populate('preRequisiteCourses.course');

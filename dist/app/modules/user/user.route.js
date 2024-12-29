@@ -16,7 +16,7 @@ const user_validation_1 = require("./user.validation");
 const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
 const router = express_1.default.Router();
 // ekhane client side theke jkn /create-student route e hit hbe tkn StudentController.studentController ae controller function e route call hbe
-router.post('/create-student', (0, auth_1.default)(user_constant_1.USER_ROLES.admin), sendImageToCloudinary_1.upload.single('file'), //ekhane multer middleware ti img file k json file e parse kore and temporary ekta file create kore uploads folder rakbe
+router.post('/create-student', (0, auth_1.default)(user_constant_1.USER_ROLES.superAdmin, user_constant_1.USER_ROLES.admin), sendImageToCloudinary_1.upload.single('file'), //ekhane multer middleware ti img file k json file e parse kore and temporary ekta file create kore uploads folder rakbe
 (req, res, next) => {
     req.body = JSON.parse(req.body.data);
     next();

@@ -104,7 +104,11 @@ const getAllStudentFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
         .paginate()
         .fields();
     const result = yield studentQuery.modelQuery;
-    return result;
+    const meta = yield studentQuery.countTotal();
+    return {
+        meta,
+        result
+    };
 });
 const getOneStudentFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield student_model_1.Student.findById(id)

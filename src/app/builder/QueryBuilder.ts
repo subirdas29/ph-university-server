@@ -63,6 +63,21 @@ class QueryBuilder<T> {
     this.modelQuery = this.modelQuery.select(fields);
     return this;
   }
+
+  async countTotal(){
+    const totalQuery = this.modelQuery.getFilter() //joto rokom er query kora hobe ta ekhane cole asbe , page-limit bade searchTearm asbe
+    const total = await this.modelQuery.model.countDocuments(totalQuery);//Db te total document dekhabe
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 10;
+    const totalPage = Math.ceil(total/limit)
+
+    return {
+      total,
+      page,
+      limit,
+      totalPage
+    }
+  }
 }
 
 export default QueryBuilder;

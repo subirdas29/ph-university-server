@@ -26,6 +26,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const faculty_model_1 = require("../faculty/faculty.model");
 const admin_model_1 = require("../admin/admin.model");
 const sendImageToCloudinary_1 = require("../../utils/sendImageToCloudinary");
+const academicDepartment_model_1 = require("../academicDepartment/academicDepartment.model");
 //create Student
 const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // controller theke service e asar por service model er upor dbquery calai database e data insert korbe.
@@ -44,6 +45,11 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
     if (!admissionSemester) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Admission semester not found.');
     }
+    const academicDepartment = yield academicDepartment_model_1.AcademicDepartment.findById(payload.academicDepartment);
+    if (!academicDepartment) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Academic Department not found");
+    }
+    payload.academicFaculty = academicDepartment.academicFaculty;
     // Transaction and Rollback:
     //eta kora hoi jkn 2ta bah tar bsi collection e ek7e data write kora lage, tkn ae process e data jate properly error bah properly database e write korte er dara properly handle kora jai.
     const session = yield mongoose_1.default.startSession(); // isolated environment create kora hyse trasaction er jonno
@@ -52,9 +58,12 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
         //set  generated id
         userData.id = yield (0, user_utils_1.generatedStudentId)(admissionSemester);
         //create a user
-        const imageName = `${userData === null || userData === void 0 ? void 0 : userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
-        const path = file === null || file === void 0 ? void 0 : file.path;
-        const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+        if (file) {
+            const imageName = `${userData === null || userData === void 0 ? void 0 : userData.id}${(_a = payload === null || payload === void 0 ? void 0 : payload.name) === null || _a === void 0 ? void 0 : _a.firstName}`;
+            const path = file === null || file === void 0 ? void 0 : file.path;
+            const { secure_url } = yield (0, sendImageToCloudinary_1.sendImageToCloudinary)(imageName, path);
+            payload.profileImg = secure_url;
+        }
         //(Transaction-1)
         const newUser = yield user_model_1.User.create([userData], { session }); //transaction e data array hisabe ashe. tai [useData] array hisabe diya hyse
         //create a student
@@ -64,7 +73,6 @@ const createStudentIntoDB = (file, password, payload) => __awaiter(void 0, void 
         }
         payload.id = newUser[0].id; //embedded id
         payload.user = newUser[0]._id; //reference id
-        payload.profileImg = secure_url;
         //(Transaction-2)
         const newStudent = yield student_model_1.Student.create([payload], { session });
         if (!newStudent.length) {

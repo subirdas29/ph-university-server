@@ -23,7 +23,7 @@ router.patch(
 );
 router.get(
   '/',
-  auth('admin', 'faculty', 'student'),
+  // auth('admin', 'faculty', 'student'),
   CourseControllers.getAllCourses,
 );
 router.get(

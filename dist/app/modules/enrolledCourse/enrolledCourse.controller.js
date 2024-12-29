@@ -26,7 +26,18 @@ const createEnrolledCourse = (0, catchAsync_1.default)((req, res) => __awaiter(v
         data: result
     });
 }));
+const updateEnrolledCourseMarks = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.userId;
+    console.log(userId);
+    const result = yield enrolledCourse_service_1.EnrolledCourseService.updateEnrolledCourseMarks(userId, req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Course Marks updated successfully",
+        data: result
+    });
+}));
 exports.EnrolledCourseControllers = {
     createEnrolledCourse,
-    // updateEnrolledCourseMarks,
+    updateEnrolledCourseMarks,
 };

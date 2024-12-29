@@ -180,14 +180,18 @@ const studentSchema = new mongoose_1.Schema({
         type: localGuardianSchema,
         required: [true, 'Local guardian details are required'],
     },
-    profileImg: { type: String },
-    admissionDepartment: {
+    profileImg: { type: String, default: '' },
+    academicDepartment: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'AcademicDepartment',
     },
     admissionSemester: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'AcademicSemester',
+    },
+    academicFaculty: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'AcademicFaculty',
     },
     isDeleted: {
         type: Boolean,

@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post(
   '/create-student',
-  auth(USER_ROLES.admin),
+  auth(USER_ROLES.superAdmin,USER_ROLES.admin),
 
   upload.single('file'), //ekhane multer middleware ti img file k json file e parse kore and temporary ekta file create kore uploads folder rakbe
 

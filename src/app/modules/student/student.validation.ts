@@ -106,8 +106,8 @@ const createStudentValidationSchema = z.object({
         .min(1, { message: 'Permanent address is required' }),
       guardian: guardianValidationSchema,
       localGuardian: localGuardianValidationSchema,
-      admissionDepartment: z.string(),
       admissionSemester: z.string(),
+      academicDepartment: z.string(),
     }),
   }),
 });
@@ -143,7 +143,7 @@ export const updateStudentValidationSchema = z.object({
       email: z.string().email().optional(),
       contactNo: z.string().optional(),
       emergencyContactNo: z.string().optional(),
-      bloogGroup: z
+      bloodGroup: z
         .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
         .optional(),
       presentAddress: z.string().optional(),

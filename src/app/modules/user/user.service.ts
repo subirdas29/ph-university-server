@@ -21,6 +21,7 @@ import { TAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
 import { verifyToken } from '../auth/auth.utils';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 
 //create Student
 const createStudentIntoDB = async (
@@ -49,6 +50,15 @@ const createStudentIntoDB = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Admission semester not found.');
   }
 
+  const academicDepartment = await AcademicDepartment.findById(payload.academicDepartment)
+
+  if(!academicDepartment) {
+    throw new AppError(httpStatus.NOT_FOUND,"Academic Department not found")
+  }
+
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
+
   // Transaction and Rollback:
   //eta kora hoi jkn 2ta bah tar bsi collection e ek7e data write kora lage, tkn ae process e data jate properly error bah properly database e write korte er dara properly handle kora jai.
 
@@ -60,10 +70,16 @@ const createStudentIntoDB = async (
     userData.id = await generatedStudentId(admissionSemester);
     //create a user
 
-    const imageName = `${userData?.id}${payload?.name?.firstName}`;
-    const path = file?.path;
+   
 
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    if(file){
+      const imageName = `${userData?.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url;
+    }
+
+   
 
     //(Transaction-1)
     const newUser = await User.create([userData], { session }); //transaction e data array hisabe ashe. tai [useData] array hisabe diya hyse
@@ -76,7 +92,7 @@ const createStudentIntoDB = async (
 
     payload.id = newUser[0].id; //embedded id
     payload.user = newUser[0]._id; //reference id
-    payload.profileImg = secure_url;
+   
 
     //(Transaction-2)
     const newStudent = await Student.create([payload], { session });
