@@ -9,6 +9,6 @@ const router = express.Router()
 
 router.post('/create-enrolled-course',auth(USER_ROLES.student),validationRequest(EnrolledCourseValidation.createEnrolledCourseValidationZodSchema),EnrolledCourseControllers.createEnrolledCourse)
 
-router.patch('/update-enrolled-course-marks',auth(USER_ROLES.faculty),validationRequest(EnrolledCourseValidation.updateEnrolledCourseMarksValidationZodSchema),EnrolledCourseControllers.updateEnrolledCourseMarks)
+router.patch('/update-enrolled-course-marks',auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty),validationRequest(EnrolledCourseValidation.updateEnrolledCourseMarksValidationZodSchema),EnrolledCourseControllers.updateEnrolledCourseMarks)
 
 export const EnrolledCourseRoutes = router
