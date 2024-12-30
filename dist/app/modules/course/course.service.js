@@ -120,6 +120,10 @@ const assignFacultiesWithCourseIntoDB = (id, payload) => __awaiter(void 0, void 
     });
     return result;
 });
+const getFacultyWithCourseFromDB = (courseId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield course_model_1.CourseFaculty.findOne({ course: courseId }).populate('faculties');
+    return result;
+});
 const removeFacultiesWithCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield course_model_1.CourseFaculty.findByIdAndUpdate(id, {
         $pull: { faculties: { $in: payload } },
@@ -135,5 +139,6 @@ exports.CourseServices = {
     updateSingleCourseIntoDB,
     deleteCourseFromDB,
     assignFacultiesWithCourseIntoDB,
+    getFacultyWithCourseFromDB,
     removeFacultiesWithCourseIntoDB,
 };

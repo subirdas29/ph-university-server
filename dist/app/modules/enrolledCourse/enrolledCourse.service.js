@@ -122,41 +122,44 @@ const createEnrolledCourse = (userId, payload) => __awaiter(void 0, void 0, void
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, err);
     }
 });
-const updateEnrolledCourseMarks = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { semesterRegistration, student, offeredCourse, courseMarks } = payload;
+const updateEnrolledCourseMarks = (facultyId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
+    const isSemesterRegistrationExists = yield semesterRegistration_model_1.SemesterRegistration.findById(semesterRegistration);
+    if (!isSemesterRegistrationExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Semester registration not found !');
+    }
     const isOfferedCourseExists = yield OfferedCourse_model_1.OfferedCourse.findById(offeredCourse);
     if (!isOfferedCourseExists) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Offered Course not found');
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Offered course not found !');
     }
-    const isSemesterRegistration = yield semesterRegistration_model_1.SemesterRegistration.findById(semesterRegistration);
-    if (!isSemesterRegistration) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Semester Registration not found');
+    const isStudentExists = yield student_model_1.Student.findById(student);
+    if (!isStudentExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Student not found !');
     }
-    const isStudentExist = yield student_model_1.Student.findById(student);
-    if (!isStudentExist) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Student is not found');
-    }
-    const facultyId = yield faculty_model_1.Faculty.findOne({ id: userId, }).select('_id');
-    if (!facultyId) {
-        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Faculty is not found");
+    const faculty = yield faculty_model_1.Faculty.findOne({ id: facultyId }, { _id: 1 });
+    if (!faculty) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Faculty not found !');
     }
     const isCourseBelongToFaculty = yield enrolledCourse_model_1.EnrolledCourse.findOne({
         semesterRegistration,
         offeredCourse,
         student,
-        faculty: facultyId._id
+        faculty: faculty._id,
     });
     if (!isCourseBelongToFaculty) {
-        throw new AppError_1.default(http_status_1.default.FORBIDDEN, "You are Forbidden!");
+        throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'You are forbidden! !');
     }
     const modifiedData = Object.assign({}, courseMarks);
-    // console.log(modifiedData)
     if (courseMarks === null || courseMarks === void 0 ? void 0 : courseMarks.finalTerm) {
         const { classTest1, classTest2, midTerm, finalTerm } = isCourseBelongToFaculty.courseMarks;
-        const totalMarks = Math.ceil(classTest1 * 0.1) +
-            Math.ceil(midTerm * 0.3) +
-            Math.ceil(classTest2 * 0.1) +
-            Math.ceil(finalTerm * 0.5);
+        console.log(classTest1);
+        console.log(classTest2);
+        console.log(midTerm);
+        console.log(isCourseBelongToFaculty.courseMarks.finalTerm);
+        const totalMarks = Math.ceil(classTest1) +
+            Math.ceil(midTerm) +
+            Math.ceil(classTest2) +
+            Math.ceil(finalTerm);
         const result = (0, enrolledCourse_utils_1.calculateGradeAndPoints)(totalMarks);
         modifiedData.grade = result.grade;
         modifiedData.gradePoints = result.gradePoints;
@@ -167,7 +170,9 @@ const updateEnrolledCourseMarks = (userId, payload) => __awaiter(void 0, void 0,
             modifiedData[`courseMarks.${key}`] = value;
         }
     }
-    const result = yield enrolledCourse_model_1.EnrolledCourse.findByIdAndUpdate(isCourseBelongToFaculty._id, modifiedData, { new: true });
+    const result = yield enrolledCourse_model_1.EnrolledCourse.findByIdAndUpdate(isCourseBelongToFaculty._id, modifiedData, {
+        new: true,
+    });
     return result;
 });
 exports.EnrolledCourseService = {

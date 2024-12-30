@@ -9,6 +9,7 @@ import { Course } from '../course/course.model';
 import { Faculty } from '../faculty/faculty.model';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { hasTimeConflict } from './OfferedCourse.utils';
+import { Student } from '../student/student.model';
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   const {
@@ -142,7 +143,156 @@ const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
     .fields();
 
   const result = await offeredCourseQuery.modelQuery;
+  const meta = await offeredCourseQuery.countTotal();
+
+  return {
+    meta,
+    result,
+  };
+
+};
+
+
+const getMyOfferedCoursesFromDB = async (userId: string) => {
+  const student = await Student.findOne({id:userId});
+
+  if(!student) {
+    throw new AppError(httpStatus.NOT_FOUND, "Student not found");
+  }
+
+  const currentOngoingRegistrationSemester = await SemesterRegistration.findOne({status:"ONGOING"})
+
+  if(!currentOngoingRegistrationSemester){
+    throw new AppError(httpStatus.NOT_FOUND,"There is no ongoing semester registration")
+  }
+
+  //ekhane sei course gula kei show korbo jeigula preRequisiteCourses nai, trpr jeigula specific student er faculty,department and tar semesterregistration ongoing, ar jodi sei student already kno course enroll kore fele sei course ar dekhabo na.
+
+  const result = await OfferedCourse.aggregate([
+    {
+      $match:{
+      semesterRegistration: currentOngoingRegistrationSemester._id,
+      academicFaculty: student.academicFaculty,
+      academicDepartment:student.academicDepartment  
+     }
+    },
+    {
+      $lookup:{
+        from:"courses",
+        localField:"course",
+        foreignField:"_id",
+        as:"course"
+      }
+    },
+    {
+      $unwind:'$course'
+    },
+    //ae stage e enrolled Course gula k filter out korte hbe
+    {
+      $lookup:{
+        from:"enrolledcourses",
+        let:{
+          currentOngoingRegistrationSemester: currentOngoingRegistrationSemester._id,
+          currentStudent: student._id
+        },
+        pipeline:[
+          {
+            $match:{
+              $expr:{ //jehetu ek collection thaka obsthai abr onno collection e giya match korsi tai expr diya korte hbe
+                $and:[
+                  {
+                    $eq:['$semesterRegistration',
+                      '$$currentOngoingRegistrationSemester']
+                  },
+                  {
+                    $eq:['$student','$$currentStudent']
+                  },
+                  {
+                    $eq:['$isEnrolled',true]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        as:"enrolledCourses"
+      }
+    },
+    {
+      $lookup:{
+        from:"enrolledcourses",
+        let:{
+          currentStudent: student._id
+        },
+        pipeline:[
+          {
+            $match:{
+              $expr:{ //jehetu ek collection thaka obsthai abr onno collection e giya match korsi tai expr diya korte hbe
+                $and:[
+                  {
+                    $eq:['$student','$$currentStudent']
+                  },
+                  {
+                    $eq:['$isCompleted',true]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        as:"completedCourses"
+      }
+    },
+    {
+      $addFields:{
+        completedCoursesIds:{
+          $map:{
+            input:'$completedCourses',
+            as:'complete',
+            in:'$$complete.course'
+          }
+        }
+      }
+    },
+    {
+      $addFields:{
+      isPreRequisiteFulFilled:{
+        $or:[
+          {$eq:['$course.preRequisiteCourses',[]]},
+          {$setIsSubset:['$course.preRequisiteCourses.course','$completedCoursesIds']} //ekhane sob course er 7e onno complete course er subset full check kore
+        ]
+      },
+      isAlreadyEnrolled:{
+        $in:['$course._id',{ //2ta er moddhe comparison er jonno $in use kora hoi,jeti true or false return kore
+          $map:{ // eta hocce mongoDB er aggregation er map jeta array er ekadik maner 7e loop calai compare korte help kre
+            input:'$enrolledCourses',
+            as:'enroll', // enrollcourses array tar vitor thaka protita object k enroll nam diya holo loop er jonno
+            in:'$$enroll.course' // ekn proti ta enroll er course er 7e course._id er compare hbe, enroll nam ta mainly exist kore na tai er data paite gele $$ dite hoi
+          }
+        }]
+      }
+      }
+    },
+    {
+      $match:{
+        isPreRequisiteFulFilled:true,
+        isAlreadyEnrolled:false
+      }
+    }
+  ])
+
   return result;
+};
+
+
+const getSingleOfferedCourseFromDB = async (id: string) => {
+  const offeredCourse = await OfferedCourse.findById(id);
+
+  if (!offeredCourse) {
+    throw new AppError(404, 'Offered Course not found');
+  }
+
+  return offeredCourse;
 };
 
 const updateOfferedCourseIntoDB = async (
@@ -199,10 +349,38 @@ const updateOfferedCourseIntoDB = async (
   return result;
 };
 
+const deleteOfferedCourseFromDB = async (id: string) => {
+  /**
+   * Step 1: check if the offered course exists
+   * Step 2: check if the semester registration status is upcoming
+   * Step 3: delete the offered course
+   */
+  const isOfferedCourseExists = await OfferedCourse.findById(id);
+
+  if (!isOfferedCourseExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Offered Course not found');
+  }
+
+  const semesterRegistration = isOfferedCourseExists.semesterRegistration;
+  const semesterRegistrationStatus =
+    await SemesterRegistration.findById(semesterRegistration).select('status');
+
+  if (semesterRegistrationStatus?.status !== 'UPCOMING') {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Offered course can not update ! because the semester ${semesterRegistrationStatus}`,
+    );
+  }
+
+  const result = await OfferedCourse.findByIdAndDelete(id);
+  return result;
+};
+
 export const OfferedCourseServices = {
   createOfferedCourseIntoDB,
   getAllOfferedCoursesFromDB,
-  // getSingleOfferedCourseFromDB,
-  // deleteOfferedCourseFromDB,
+  getMyOfferedCoursesFromDB,
+  getSingleOfferedCourseFromDB,
+  deleteOfferedCourseFromDB,
   updateOfferedCourseIntoDB,
 };

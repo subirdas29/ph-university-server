@@ -23,6 +23,7 @@ const course_model_1 = require("../course/course.model");
 const faculty_model_1 = require("../faculty/faculty.model");
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const OfferedCourse_utils_1 = require("./OfferedCourse.utils");
+const student_model_1 = require("../student/student.model");
 const createOfferedCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { semesterRegistration, academicFaculty, academicDepartment, course, section, faculty, days, startTime, endTime, } = payload;
     /**
@@ -101,7 +102,142 @@ const getAllOfferedCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, 
         .paginate()
         .fields();
     const result = yield offeredCourseQuery.modelQuery;
+    const meta = yield offeredCourseQuery.countTotal();
+    return {
+        meta,
+        result,
+    };
+});
+const getMyOfferedCoursesFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const student = yield student_model_1.Student.findOne({ id: userId });
+    if (!student) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Student not found");
+    }
+    const currentOngoingRegistrationSemester = yield semesterRegistration_model_1.SemesterRegistration.findOne({ status: "ONGOING" });
+    if (!currentOngoingRegistrationSemester) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "There is no ongoing semester registration");
+    }
+    //ekhane sei course gula kei show korbo jeigula preRequisiteCourses nai, trpr jeigula specific student er faculty,department and tar semesterregistration ongoing, ar jodi sei student already kno course enroll kore fele sei course ar dekhabo na.
+    const result = yield OfferedCourse_model_1.OfferedCourse.aggregate([
+        {
+            $match: {
+                semesterRegistration: currentOngoingRegistrationSemester._id,
+                academicFaculty: student.academicFaculty,
+                academicDepartment: student.academicDepartment
+            }
+        },
+        {
+            $lookup: {
+                from: "courses",
+                localField: "course",
+                foreignField: "_id",
+                as: "course"
+            }
+        },
+        {
+            $unwind: '$course'
+        },
+        //ae stage e enrolled Course gula k filter out korte hbe
+        {
+            $lookup: {
+                from: "enrolledcourses",
+                let: {
+                    currentOngoingRegistrationSemester: currentOngoingRegistrationSemester._id,
+                    currentStudent: student._id
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    {
+                                        $eq: ['$semesterRegistration',
+                                            '$$currentOngoingRegistrationSemester']
+                                    },
+                                    {
+                                        $eq: ['$student', '$$currentStudent']
+                                    },
+                                    {
+                                        $eq: ['$isEnrolled', true]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "enrolledCourses"
+            }
+        },
+        {
+            $lookup: {
+                from: "enrolledcourses",
+                let: {
+                    currentStudent: student._id
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    {
+                                        $eq: ['$student', '$$currentStudent']
+                                    },
+                                    {
+                                        $eq: ['$isCompleted', true]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "completedCourses"
+            }
+        },
+        {
+            $addFields: {
+                completedCoursesIds: {
+                    $map: {
+                        input: '$completedCourses',
+                        as: 'complete',
+                        in: '$$complete.course'
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                isPreRequisiteFulFilled: {
+                    $or: [
+                        { $eq: ['$course.preRequisiteCourses', []] },
+                        { $setIsSubset: ['$course.preRequisiteCourses.course', '$completedCoursesIds'] } //ekhane sob course er 7e onno complete course er subset full check kore
+                    ]
+                },
+                isAlreadyEnrolled: {
+                    $in: ['$course._id', {
+                            $map: {
+                                input: '$enrolledCourses',
+                                as: 'enroll', // enrollcourses array tar vitor thaka protita object k enroll nam diya holo loop er jonno
+                                in: '$$enroll.course' // ekn proti ta enroll er course er 7e course._id er compare hbe, enroll nam ta mainly exist kore na tai er data paite gele $$ dite hoi
+                            }
+                        }]
+                }
+            }
+        },
+        {
+            $match: {
+                isPreRequisiteFulFilled: true,
+                isAlreadyEnrolled: false
+            }
+        }
+    ]);
     return result;
+});
+const getSingleOfferedCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const offeredCourse = yield OfferedCourse_model_1.OfferedCourse.findById(id);
+    if (!offeredCourse) {
+        throw new AppError_1.default(404, 'Offered Course not found');
+    }
+    return offeredCourse;
 });
 const updateOfferedCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { faculty, days, startTime, endTime } = payload;
@@ -136,10 +272,29 @@ const updateOfferedCourseIntoDB = (id, payload) => __awaiter(void 0, void 0, voi
     });
     return result;
 });
+const deleteOfferedCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    /**
+     * Step 1: check if the offered course exists
+     * Step 2: check if the semester registration status is upcoming
+     * Step 3: delete the offered course
+     */
+    const isOfferedCourseExists = yield OfferedCourse_model_1.OfferedCourse.findById(id);
+    if (!isOfferedCourseExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Offered Course not found');
+    }
+    const semesterRegistration = isOfferedCourseExists.semesterRegistration;
+    const semesterRegistrationStatus = yield semesterRegistration_model_1.SemesterRegistration.findById(semesterRegistration).select('status');
+    if ((semesterRegistrationStatus === null || semesterRegistrationStatus === void 0 ? void 0 : semesterRegistrationStatus.status) !== 'UPCOMING') {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Offered course can not update ! because the semester ${semesterRegistrationStatus}`);
+    }
+    const result = yield OfferedCourse_model_1.OfferedCourse.findByIdAndDelete(id);
+    return result;
+});
 exports.OfferedCourseServices = {
     createOfferedCourseIntoDB,
     getAllOfferedCoursesFromDB,
-    // getSingleOfferedCourseFromDB,
-    // deleteOfferedCourseFromDB,
+    getMyOfferedCoursesFromDB,
+    getSingleOfferedCourseFromDB,
+    deleteOfferedCourseFromDB,
     updateOfferedCourseIntoDB,
 };

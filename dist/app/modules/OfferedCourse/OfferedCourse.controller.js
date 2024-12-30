@@ -36,10 +36,51 @@ const updateOfferedCourse = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         data: result,
     });
 }));
+const getAllOfferedCoursesFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const result = yield OfferedCourse_service_1.OfferedCourseServices.getAllOfferedCoursesFromDB(query);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OfferedCourse updated successfully',
+        data: result,
+    });
+}));
+const getMyOfferedCoursesFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.userId;
+    const result = yield OfferedCourse_service_1.OfferedCourseServices.getMyOfferedCoursesFromDB(userId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'My OfferedCourse retrieved successfully',
+        data: result,
+    });
+}));
+const getSingleOfferedCourses = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield OfferedCourse_service_1.OfferedCourseServices.getSingleOfferedCourseFromDB(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OfferedCourse fetched successfully',
+        data: result,
+    });
+}));
+const deleteOfferedCourseFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield OfferedCourse_service_1.OfferedCourseServices.deleteOfferedCourseFromDB(id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'OfferedCourse deleted successfully',
+        data: result,
+    });
+}));
 exports.OfferedCourseControllers = {
     createOfferedCourse,
-    // getAllOfferedCourses,
-    // getSingleOfferedCourses,
+    getAllOfferedCoursesFromDB,
+    getSingleOfferedCourses,
+    getMyOfferedCoursesFromDB,
     updateOfferedCourse,
-    // deleteOfferedCourseFromDB,
+    deleteOfferedCourseFromDB,
 };

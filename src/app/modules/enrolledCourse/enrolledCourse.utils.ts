@@ -8,7 +8,7 @@ export const calculateGradeAndPoints = (totalMarks:number)=>{
     if(totalMarks>=0 && totalMarks<=19){
         result={
             grade:'F',
-            gradePoints: 0
+            gradePoints: 0.00
         }
     }
 
@@ -39,7 +39,7 @@ export const calculateGradeAndPoints = (totalMarks:number)=>{
     else{
         result = {
             grade:'NA',
-            gradePoints:0
+            gradePoints:0.00
         }
     }
 

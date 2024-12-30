@@ -9,7 +9,7 @@ const calculateGradeAndPoints = (totalMarks) => {
     if (totalMarks >= 0 && totalMarks <= 19) {
         result = {
             grade: 'F',
-            gradePoints: 0
+            gradePoints: 0.00
         };
     }
     else if (totalMarks >= 20 && totalMarks <= 39) {
@@ -39,7 +39,7 @@ const calculateGradeAndPoints = (totalMarks) => {
     else {
         result = {
             grade: 'NA',
-            gradePoints: 0
+            gradePoints: 0.00
         };
     }
     return result;
