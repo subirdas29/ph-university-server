@@ -16,13 +16,25 @@ router.post(
   ),
   AcademicDepartmentControllers.createAcademicDepartment,
 );
-router.get('/', AcademicDepartmentControllers.getAllAcademicDepartments);
+router.get('/',auth(
+  USER_ROLES.superAdmin,
+  USER_ROLES.admin,
+  USER_ROLES.faculty,
+  USER_ROLES.student,
+),  AcademicDepartmentControllers.getAllAcademicDepartments);
 router.get(
-  '/:departmentId',
+  '/:departmentId',auth(
+    USER_ROLES.superAdmin,
+    USER_ROLES.admin,
+    USER_ROLES.faculty,
+    USER_ROLES.student,
+  ),
   AcademicDepartmentControllers.getOneAcademicDepartment,
 );
 router.patch(
-  '/:departmentId',
+  '/:departmentId',auth(
+    USER_ROLES.superAdmin,
+    USER_ROLES.admin),
   validationRequest(
     AcademicDepartmentValidation.updateAcademicDepartmentValidationSchema,
   ),

@@ -108,7 +108,7 @@ const getAllOfferedCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, 
         result,
     };
 });
-const getMyOfferedCoursesFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getMyOfferedCoursesFromDB = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
     const student = yield student_model_1.Student.findOne({ id: userId });
     if (!student) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Student not found");
@@ -117,8 +117,11 @@ const getMyOfferedCoursesFromDB = (userId) => __awaiter(void 0, void 0, void 0, 
     if (!currentOngoingRegistrationSemester) {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, "There is no ongoing semester registration");
     }
+    const page = Number(query === null || query === void 0 ? void 0 : query.page) || 1;
+    const limit = Number(query === null || query === void 0 ? void 0 : query.limit) || 10;
+    const skip = (page - 1) * limit;
     //ekhane sei course gula kei show korbo jeigula preRequisiteCourses nai, trpr jeigula specific student er faculty,department and tar semesterregistration ongoing, ar jodi sei student already kno course enroll kore fele sei course ar dekhabo na.
-    const result = yield OfferedCourse_model_1.OfferedCourse.aggregate([
+    const aggregationQuery = [
         {
             $match: {
                 semesterRegistration: currentOngoingRegistrationSemester._id,
@@ -229,8 +232,28 @@ const getMyOfferedCoursesFromDB = (userId) => __awaiter(void 0, void 0, void 0, 
                 isAlreadyEnrolled: false
             }
         }
-    ]);
-    return result;
+    ];
+    // pagination for OfferedCourse
+    const paginationQuery = [
+        {
+            $skip: skip
+        },
+        {
+            $limit: limit
+        }
+    ];
+    const result = yield OfferedCourse_model_1.OfferedCourse.aggregate([...aggregationQuery, ...paginationQuery]);
+    const total = (yield OfferedCourse_model_1.OfferedCourse.aggregate(aggregationQuery)).length; //paginationQuery te sob data ashe na tai evabe alada kora holo
+    const totalPage = Math.ceil(total / limit);
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+            totalPage
+        },
+        result
+    };
 });
 const getSingleOfferedCourseFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const offeredCourse = yield OfferedCourse_model_1.OfferedCourse.findById(id);

@@ -43,17 +43,20 @@ const getAllOfferedCoursesFromDB = (0, catchAsync_1.default)((req, res) => __awa
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'OfferedCourse updated successfully',
-        data: result,
+        meta: result.meta,
+        data: result.result,
     });
 }));
 const getMyOfferedCoursesFromDB = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.userId;
-    const result = yield OfferedCourse_service_1.OfferedCourseServices.getMyOfferedCoursesFromDB(userId);
+    const query = req.query;
+    const result = yield OfferedCourse_service_1.OfferedCourseServices.getMyOfferedCoursesFromDB(userId, query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'My OfferedCourse retrieved successfully',
-        data: result,
+        meta: result.meta,
+        data: result.result,
     });
 }));
 const getSingleOfferedCourses = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

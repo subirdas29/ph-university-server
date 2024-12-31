@@ -11,4 +11,6 @@ router.post('/create-enrolled-course',auth(USER_ROLES.student),validationRequest
 
 router.patch('/update-enrolled-course-marks',auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty),validationRequest(EnrolledCourseValidation.updateEnrolledCourseMarksValidationZodSchema),EnrolledCourseControllers.updateEnrolledCourseMarks)
 
+router.get('/my-enrolled-courses',auth(USER_ROLES.student),EnrolledCourseControllers.getMyEnrolledCourses)
+
 export const EnrolledCourseRoutes = router

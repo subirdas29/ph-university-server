@@ -18,14 +18,13 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const faculty_service_1 = require("./faculty.service");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const getAllFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log('test',req.user)
-    const query = req.query;
-    const result = yield faculty_service_1.FacultyServices.getAllFacultyFromDB(query);
+    const result = yield faculty_service_1.FacultyServices.getAllFacultyFromDB(req.query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Faculty is receive successfully',
-        data: result,
+        message: 'Faculties are retrieved succesfully',
+        meta: result.meta,
+        data: result.result,
     });
 }));
 const getOneFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -27,12 +27,14 @@ const createAcademicDepartment = (0, catchAsync_1.default)((req, res) => __await
     });
 }));
 const getAllAcademicDepartments = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield academicDepartment_service_1.AcademicDepartmentServices.getAllAcademicDepartmentIntoDB();
+    const query = req.query;
+    const result = yield academicDepartment_service_1.AcademicDepartmentServices.getAllAcademicDepartmentIntoDB(query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Academic Departments are retrieved successfully',
-        data: result,
+        meta: result.meta,
+        data: result.result,
     });
 }));
 const getOneAcademicDepartment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

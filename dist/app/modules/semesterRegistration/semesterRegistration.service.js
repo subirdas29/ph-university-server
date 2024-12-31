@@ -53,7 +53,11 @@ const getAllSemesterRegistrationsFromDB = (query) => __awaiter(void 0, void 0, v
         .paginate()
         .fields();
     const result = yield semesterRegistrationQuery.modelQuery;
-    return result;
+    const meta = yield semesterRegistrationQuery.countTotal();
+    return {
+        result,
+        meta
+    };
 });
 const getSingleSemesterRegistrationsFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield semesterRegistration_model_1.SemesterRegistration.findById(id);

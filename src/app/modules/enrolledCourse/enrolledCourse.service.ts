@@ -11,6 +11,7 @@ import { SemesterRegistration } from "../semesterRegistration/semesterRegistrati
 import { Course } from "../course/course.model";
 import { Faculty } from "../faculty/faculty.model";
 import { calculateGradeAndPoints } from "./enrolledCourse.utils";
+import QueryBuilder from "../../builder/QueryBuilder";
 
 const createEnrolledCourse = async(userId:string,payload:TEnrolledCourse) =>{
 
@@ -143,6 +144,30 @@ try{
    }
 }
 
+const getEnrolledCourses = async(userId:string,query:Record<string,unknown>)=>{
+  
+  const isStudentExists = await Student.findOne({id:userId},{_id:1})
+
+if(!isStudentExists){
+    throw new AppError(httpStatus.NOT_FOUND,'Student not found')
+}
+
+const enrolledCourseQuery = new QueryBuilder(
+  EnrolledCourse.find({student:isStudentExists._id}).populate(  'semesterRegistration academicSemester academicFaculty academicDepartment offeredCourse course student faculty'),query
+).filter()
+.sort()
+.paginate()
+.fields();
+
+const result = await enrolledCourseQuery.modelQuery
+const meta = await enrolledCourseQuery.countTotal()
+
+return {
+  meta,
+  result
+}
+}
+
 const updateEnrolledCourseMarks = async (
     facultyId: string,
     payload: Partial<TEnrolledCourse>,
@@ -194,12 +219,6 @@ const updateEnrolledCourseMarks = async (
     if (courseMarks?.finalTerm) {
       const { classTest1, classTest2, midTerm, finalTerm } =
         isCourseBelongToFaculty.courseMarks;
-  
-        console.log(classTest1)
-        console.log(classTest2)
-        console.log(midTerm)
-        console.log(isCourseBelongToFaculty.courseMarks.finalTerm)
-
 
       const totalMarks =
         Math.ceil(classTest1) +
@@ -234,5 +253,6 @@ const updateEnrolledCourseMarks = async (
 
 export const EnrolledCourseService ={
     createEnrolledCourse,
+    getEnrolledCourses,
     updateEnrolledCourseMarks
 }

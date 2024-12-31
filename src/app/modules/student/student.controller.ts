@@ -2,25 +2,19 @@ import { StudentServices } from './student.service';
 import sendResponse from '../../utils/sendResponse';
 import catchAsync from '../../utils/catchAsync';
 import httpStatus from 'http-status';
-// import studentValidationSchema from './student.validation';
-// import { z } from "zod";
+
 
 const getAllStudent = catchAsync(async (req, res) => {
   const query = req.query;
 
   const result = await StudentServices.getAllStudentFromDB(query);
-  // res.status(200).json({
-  //   success: true,
-  //   message: 'data receive successfully',
-  //   // ae data route hoi direct client er kase pathabe
-  //   data: result,
-  // });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Student is receive successfully ',
-    data: result,
+    meta:result.meta,
+    data: result.result,
   });
 });
 
@@ -28,12 +22,6 @@ const getOneStudent = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const result = await StudentServices.getOneStudentFromDB(id);
-  // res.status(200).json({
-  //   success: true,
-  //   message: 'One Student data receive successfully',
-  //   // ae data route hoi direct client er kase pathabe
-  //   data: result,
-  // });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -60,12 +48,7 @@ const deleteOneStudent = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const result = await StudentServices.deleteStudentFromDB(id);
-  // res.status(200).json({
-  //   success: true,
-  //   message: 'One Student data Deleted successfully',
-  //   // ae data route hoi direct client er kase pathabe
-  //   data: result,
-  // });
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

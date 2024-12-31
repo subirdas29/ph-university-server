@@ -16,11 +16,24 @@ const createEnrolledCourse = catchAsync(async(req,res)=>{
     })
 }) 
 
+const getMyEnrolledCourses = catchAsync(async(req,res)=>{
+    const userId = req.user.userId
+    const query = req.query
+
+    const result = await EnrolledCourseService.getEnrolledCourses(userId,query)
+
+    sendResponse(res,{
+        statusCode: 200,
+        success: true,
+        message: "YOur Course retrieved successfully",
+        meta: result.meta,
+        data: result.result
+    })
+})
+
 const updateEnrolledCourseMarks = catchAsync(async(req,res)=>{
 
     const userId = req.user.userId
-
-    console.log(userId)
 
     const result = await EnrolledCourseService.updateEnrolledCourseMarks(userId,req.body)
 
@@ -34,5 +47,6 @@ const updateEnrolledCourseMarks = catchAsync(async(req,res)=>{
 
 export const EnrolledCourseControllers = {
     createEnrolledCourse,
+    getMyEnrolledCourses,
     updateEnrolledCourseMarks,
   };

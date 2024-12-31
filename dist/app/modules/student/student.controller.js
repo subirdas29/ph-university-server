@@ -17,33 +17,20 @@ const student_service_1 = require("./student.service");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const http_status_1 = __importDefault(require("http-status"));
-// import studentValidationSchema from './student.validation';
-// import { z } from "zod";
 const getAllStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
     const result = yield student_service_1.StudentServices.getAllStudentFromDB(query);
-    // res.status(200).json({
-    //   success: true,
-    //   message: 'data receive successfully',
-    //   // ae data route hoi direct client er kase pathabe
-    //   data: result,
-    // });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'Student is receive successfully ',
-        data: result,
+        meta: result.meta,
+        data: result.result,
     });
 }));
 const getOneStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield student_service_1.StudentServices.getOneStudentFromDB(id);
-    // res.status(200).json({
-    //   success: true,
-    //   message: 'One Student data receive successfully',
-    //   // ae data route hoi direct client er kase pathabe
-    //   data: result,
-    // });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -65,12 +52,6 @@ const updateStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 const deleteOneStudent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield student_service_1.StudentServices.deleteStudentFromDB(id);
-    // res.status(200).json({
-    //   success: true,
-    //   message: 'One Student data Deleted successfully',
-    //   // ae data route hoi direct client er kase pathabe
-    //   data: result,
-    // });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

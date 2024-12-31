@@ -15,10 +15,25 @@ router.post(
   ),
   AcademicFacultyControllers.createAcademicFaculty,
 );
-router.get('/', AcademicFacultyControllers.getAllAcademicFaculties);
-router.get('/:facultyId', AcademicFacultyControllers.getOneAcademicFaculty);
+
+router.get('/', auth(
+  USER_ROLES.superAdmin,
+  USER_ROLES.admin,
+  USER_ROLES.faculty,
+  USER_ROLES.student,
+), AcademicFacultyControllers.getAllAcademicFaculties);
+
+router.get('/:facultyId',auth(
+  USER_ROLES.superAdmin,
+  USER_ROLES.admin,
+  USER_ROLES.faculty,
+  USER_ROLES.student,
+), AcademicFacultyControllers.getOneAcademicFaculty);
+
 router.patch(
-  '/:facultyId',
+  '/:facultyId',auth(
+    USER_ROLES.superAdmin,
+    USER_ROLES.admin),
   validationRequest(
     AcademicFacultyValidation.updateAcademicFacultyValidationSchema,
   ),

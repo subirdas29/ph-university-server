@@ -24,6 +24,7 @@ const semesterRegistration_model_1 = require("../semesterRegistration/semesterRe
 const course_model_1 = require("../course/course.model");
 const faculty_model_1 = require("../faculty/faculty.model");
 const enrolledCourse_utils_1 = require("./enrolledCourse.utils");
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const createEnrolledCourse = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { offeredCourse } = payload;
     /**
@@ -122,6 +123,22 @@ const createEnrolledCourse = (userId, payload) => __awaiter(void 0, void 0, void
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, err);
     }
 });
+const getEnrolledCourses = (userId, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const isStudentExists = yield student_model_1.Student.findOne({ id: userId }, { _id: 1 });
+    if (!isStudentExists) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Student not found');
+    }
+    const enrolledCourseQuery = new QueryBuilder_1.default(enrolledCourse_model_1.EnrolledCourse.find({ student: isStudentExists._id }).populate('semesterRegistration academicSemester academicFaculty academicDepartment offeredCourse course student faculty'), query).filter()
+        .sort()
+        .paginate()
+        .fields();
+    const result = yield enrolledCourseQuery.modelQuery;
+    const meta = yield enrolledCourseQuery.countTotal();
+    return {
+        meta,
+        result
+    };
+});
 const updateEnrolledCourseMarks = (facultyId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { semesterRegistration, offeredCourse, student, courseMarks } = payload;
     const isSemesterRegistrationExists = yield semesterRegistration_model_1.SemesterRegistration.findById(semesterRegistration);
@@ -152,10 +169,6 @@ const updateEnrolledCourseMarks = (facultyId, payload) => __awaiter(void 0, void
     const modifiedData = Object.assign({}, courseMarks);
     if (courseMarks === null || courseMarks === void 0 ? void 0 : courseMarks.finalTerm) {
         const { classTest1, classTest2, midTerm, finalTerm } = isCourseBelongToFaculty.courseMarks;
-        console.log(classTest1);
-        console.log(classTest2);
-        console.log(midTerm);
-        console.log(isCourseBelongToFaculty.courseMarks.finalTerm);
         const totalMarks = Math.ceil(classTest1) +
             Math.ceil(midTerm) +
             Math.ceil(classTest2) +
@@ -177,5 +190,6 @@ const updateEnrolledCourseMarks = (facultyId, payload) => __awaiter(void 0, void
 });
 exports.EnrolledCourseService = {
     createEnrolledCourse,
+    getEnrolledCourses,
     updateEnrolledCourseMarks
 };

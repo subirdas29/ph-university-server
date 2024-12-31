@@ -8,16 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AcademicFacultyServices = void 0;
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const academicFaculty_model_1 = require("./academicFaculty.model");
 const createAcademicFacultyIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield academicFaculty_model_1.AcademicFaculty.create(payload);
     return result;
 });
-const getAllAcademicFacultyIntoDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield academicFaculty_model_1.AcademicFaculty.find();
-    return result;
+const getAllAcademicFacultyIntoDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const facultyQuery = new QueryBuilder_1.default(academicFaculty_model_1.AcademicFaculty.find(), query).filter()
+        .sort()
+        .paginate()
+        .fields();
+    const result = yield facultyQuery.modelQuery;
+    const meta = yield facultyQuery.countTotal();
+    return {
+        result,
+        meta
+    };
 });
 const getOneAcademicFacultyIntoDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield academicFaculty_model_1.AcademicFaculty.findById(id);

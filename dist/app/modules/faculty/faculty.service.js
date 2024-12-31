@@ -34,19 +34,18 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const user_model_1 = require("../user/user.model");
 const getAllFacultyFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const facultyQuery = new QueryBuilder_1.default(faculty_model_1.Faculty.find().populate({
-        path: 'academicDepartment',
-        populate: {
-            path: 'academicFaculty',
-        },
-    }), query)
+    const facultyQuery = new QueryBuilder_1.default(faculty_model_1.Faculty.find().populate('academicDepartment academicFaculty'), query)
         .search(faculty_constant_1.FacultySearchableFields)
         .filter()
         .sort()
         .paginate()
         .fields();
     const result = yield facultyQuery.modelQuery;
-    return result;
+    const meta = yield facultyQuery.countTotal();
+    return {
+        result,
+        meta
+    };
 });
 const getOneFacultyFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield faculty_model_1.Faculty.findById(id);

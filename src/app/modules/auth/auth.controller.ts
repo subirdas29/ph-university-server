@@ -12,6 +12,10 @@ const loginUser = catchAsync(async (req, res) => {
   res.cookie('refreshToken', refreshToken, {
     secure: config.NODE_ENV === 'production', // development mode e http te kaj korbe.ete secure false thake. kintu production mode e https kaj korbe ete secure true hbe
     httpOnly: true, // eta jate js dara modify kora na jai tai httponly kora hyse
+
+    // refresh token free hosting e deploy hoi nai. ar paid e deploy korle ( sameSite, maxAge) ae 2ta add kore dite hoi. 
+    sameSite:'none', //amader front and back end jodi alada domain e hoi thle sameSite k none add kri
+    maxAge: 1000 * 60 * 60 * 24 * 365 //eta refresh token er age
   });
 
   sendResponse(res, {

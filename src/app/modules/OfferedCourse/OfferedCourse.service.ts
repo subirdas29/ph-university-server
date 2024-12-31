@@ -153,7 +153,7 @@ const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
 };
 
 
-const getMyOfferedCoursesFromDB = async (userId: string) => {
+const getMyOfferedCoursesFromDB = async (userId: string,query:Record<string,unknown>) => {
   const student = await Student.findOne({id:userId});
 
   if(!student) {
@@ -166,9 +166,13 @@ const getMyOfferedCoursesFromDB = async (userId: string) => {
     throw new AppError(httpStatus.NOT_FOUND,"There is no ongoing semester registration")
   }
 
-  //ekhane sei course gula kei show korbo jeigula preRequisiteCourses nai, trpr jeigula specific student er faculty,department and tar semesterregistration ongoing, ar jodi sei student already kno course enroll kore fele sei course ar dekhabo na.
 
-  const result = await OfferedCourse.aggregate([
+  const page = Number(query?.page) || 1;
+  const limit = Number(query?.limit) || 10;
+  const skip = (page - 1) * limit;
+
+//ekhane sei course gula kei show korbo jeigula preRequisiteCourses nai, trpr jeigula specific student er faculty,department and tar semesterregistration ongoing, ar jodi sei student already kno course enroll kore fele sei course ar dekhabo na.
+  const aggregationQuery = [
     {
       $match:{
       semesterRegistration: currentOngoingRegistrationSemester._id,
@@ -279,9 +283,31 @@ const getMyOfferedCoursesFromDB = async (userId: string) => {
         isAlreadyEnrolled:false
       }
     }
-  ])
+  ]
 
-  return result;
+  // pagination for OfferedCourse
+  const paginationQuery = [
+    {
+      $skip:skip
+    },
+    {
+      $limit:limit
+    }
+  ]
+
+  const result = await OfferedCourse.aggregate([...aggregationQuery,...paginationQuery])
+  const total = (await OfferedCourse.aggregate(aggregationQuery)).length //paginationQuery te sob data ashe na tai evabe alada kora holo
+  const totalPage = Math.ceil(total/limit)
+
+  return {
+    meta:{
+      page,
+      limit,
+      total,
+      totalPage
+    },
+    result
+  };
 };
 
 

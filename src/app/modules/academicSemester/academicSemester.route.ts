@@ -15,8 +15,11 @@ router.post(
   ),
   AcademicSemesterControllers.createAcademicSemester,
 );
+
 router.get('/', auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty,USER_ROLES.student), AcademicSemesterControllers.getAllAcademicSemester);
+
 router.get('/:semesterId', auth(USER_ROLES.superAdmin,USER_ROLES.admin,USER_ROLES.faculty,USER_ROLES.student), AcademicSemesterControllers.getOneAcademicSemester);
+
 router.patch(
   '/:semesterId', auth(USER_ROLES.superAdmin,USER_ROLES.admin),
   validationRequest(

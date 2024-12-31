@@ -22,7 +22,7 @@ const app = (0, express_1.default)();
 //parsers
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)({ origin: ['http://localhost:5173'] }));
+app.use((0, cors_1.default)({ origin: ['http://localhost:5173'], credentials: true }));
 // application routes
 app.use('/api/v1', routes_1.default);
 const test = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
