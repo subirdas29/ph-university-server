@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type TGender = 'male' | 'female' | 'other';
 export type TBloodGroup =
@@ -35,3 +35,7 @@ export type TFaculty = {
   academicFaculty: Types.ObjectId;
   isDeleted: boolean;
 };
+
+export interface FacultyModel extends Model<TFaculty> {
+  isUserExists(id: string): Promise<TFaculty | null>;
+}

@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
+import AppError from '../../errors/AppError';
 import { FacultySearchableFields } from './faculty.constant';
 import { TFaculty } from './faculty.interface';
 import { Faculty } from './faculty.model';
-import AppError from '../../errors/AppError';
-import httpStatus from 'http-status';
 import { User } from '../user/user.model';
 
-const getAllFacultyFromDB = async (query: Record<string, unknown>) => {
+const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
   const facultyQuery = new QueryBuilder(
     Faculty.find().populate('academicDepartment academicFaculty'),
     query,
@@ -19,28 +18,33 @@ const getAllFacultyFromDB = async (query: Record<string, unknown>) => {
     .sort()
     .paginate()
     .fields();
+
   const result = await facultyQuery.modelQuery;
-  const meta = await facultyQuery.countTotal()
+  const meta = await facultyQuery.countTotal();
   return {
     result,
-    meta
+    meta,
   };
 };
 
-const getOneFacultyFromDB = async (id: string) => {
-  const result = await Faculty.findById(id);
+const getSingleFacultyFromDB = async (id: string) => {
+  const result = await Faculty.findById(id).populate(
+    'academicDepartment academicFaculty',
+  );
+
   return result;
 };
 
-const updateFacultyFromDB = async (id: string, payload: Partial<TFaculty>) => {
-  const { name, ...remainingData } = payload;
+const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
+  const { name, ...remainingFacultyData } = payload;
 
-  const modifiedUpdatedData: Record<string, unknown> = { ...remainingData };
+  const modifiedUpdatedData: Record<string, unknown> = {
+    ...remainingFacultyData,
+  };
 
   if (name && Object.keys(name).length) {
     for (const [key, value] of Object.entries(name)) {
-      //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
-      modifiedUpdatedData[`name.${key}`] = value; //name.firstName = 'joy'
+      modifiedUpdatedData[`name.${key}`] = value;
     }
   }
 
@@ -56,38 +60,44 @@ const deleteFacultyFromDB = async (id: string) => {
 
   try {
     session.startTransaction();
-    const deleteFaculty = await Faculty.findByIdAndUpdate(
+
+    const deletedFaculty = await Faculty.findByIdAndUpdate(
       id,
       { isDeleted: true },
       { new: true, session },
     );
 
-    if (!deleteFaculty) {
+    if (!deletedFaculty) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete faculty');
     }
 
-    const deleteUser = await User.findByIdAndUpdate(
-      id,
+    // get user _id from deletedFaculty
+    const userId = deletedFaculty.user;
+
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
 
-    if (!deleteUser) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete User');
+    if (!deletedUser) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete user');
     }
 
     await session.commitTransaction();
     await session.endSession();
+
+    return deletedFaculty;
   } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to Delete data');
+    throw new Error(err);
   }
 };
 
 export const FacultyServices = {
-  getAllFacultyFromDB,
-  getOneFacultyFromDB,
-  updateFacultyFromDB,
+  getAllFacultiesFromDB,
+  getSingleFacultyFromDB,
+  updateFacultyIntoDB,
   deleteFacultyFromDB,
 };

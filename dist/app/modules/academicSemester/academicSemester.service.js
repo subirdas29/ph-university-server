@@ -28,7 +28,8 @@ const getAllAcademicSemesterFromDB = (query) => __awaiter(void 0, void 0, void 0
     const semesterQuery = new QueryBuilder_1.default(academicSemester_model_1.AcademicSemester.find(), query).filter()
         .sort()
         .paginate()
-        .fields();
+        .fields()
+        .search(academicSemester_constant_1.AcademicSemesterSearchableFields);
     const result = yield semesterQuery.modelQuery;
     const meta = yield semesterQuery.countTotal();
     return {

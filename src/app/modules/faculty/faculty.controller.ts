@@ -4,7 +4,7 @@ import { FacultyServices } from './faculty.service';
 import sendResponse from '../../utils/sendResponse';
 
 const getAllFaculty = catchAsync(async (req, res) => {
-  const result = await FacultyServices.getAllFacultyFromDB(req.query);
+  const result = await FacultyServices.getAllFacultiesFromDB(req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -18,7 +18,7 @@ const getAllFaculty = catchAsync(async (req, res) => {
 
 const getOneFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await FacultyServices.getOneFacultyFromDB(id);
+  const result = await FacultyServices.getSingleFacultyFromDB(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -30,7 +30,7 @@ const getOneFaculty = catchAsync(async (req, res) => {
 const updateFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { faculty } = req.body;
-  const result = await FacultyServices.updateFacultyFromDB(id, faculty);
+  const result = await FacultyServices.updateFacultyIntoDB(id, faculty);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

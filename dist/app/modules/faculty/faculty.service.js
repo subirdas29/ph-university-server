@@ -24,16 +24,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FacultyServices = void 0;
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const http_status_1 = __importDefault(require("http-status"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const faculty_constant_1 = require("./faculty.constant");
 const faculty_model_1 = require("./faculty.model");
-const AppError_1 = __importDefault(require("../../errors/AppError"));
-const http_status_1 = __importDefault(require("http-status"));
 const user_model_1 = require("../user/user.model");
-const getAllFacultyFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllFacultiesFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const facultyQuery = new QueryBuilder_1.default(faculty_model_1.Faculty.find().populate('academicDepartment academicFaculty'), query)
         .search(faculty_constant_1.FacultySearchableFields)
         .filter()
@@ -44,20 +43,19 @@ const getAllFacultyFromDB = (query) => __awaiter(void 0, void 0, void 0, functio
     const meta = yield facultyQuery.countTotal();
     return {
         result,
-        meta
+        meta,
     };
 });
-const getOneFacultyFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield faculty_model_1.Faculty.findById(id);
+const getSingleFacultyFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield faculty_model_1.Faculty.findById(id).populate('academicDepartment academicFaculty');
     return result;
 });
-const updateFacultyFromDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name } = payload, remainingData = __rest(payload, ["name"]);
-    const modifiedUpdatedData = Object.assign({}, remainingData);
+const updateFacultyIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name } = payload, remainingFacultyData = __rest(payload, ["name"]);
+    const modifiedUpdatedData = Object.assign({}, remainingFacultyData);
     if (name && Object.keys(name).length) {
         for (const [key, value] of Object.entries(name)) {
-            //ekhane Object.entries dara object theke key,value data array akare pair kore sajai dibe
-            modifiedUpdatedData[`name.${key}`] = value; //name.firstName = 'joy'
+            modifiedUpdatedData[`name.${key}`] = value;
         }
     }
     const result = yield faculty_model_1.Faculty.findByIdAndUpdate(id, modifiedUpdatedData, {
@@ -70,26 +68,29 @@ const deleteFacultyFromDB = (id) => __awaiter(void 0, void 0, void 0, function* 
     const session = yield mongoose_1.default.startSession();
     try {
         session.startTransaction();
-        const deleteFaculty = yield faculty_model_1.Faculty.findByIdAndUpdate(id, { isDeleted: true }, { new: true, session });
-        if (!deleteFaculty) {
+        const deletedFaculty = yield faculty_model_1.Faculty.findByIdAndUpdate(id, { isDeleted: true }, { new: true, session });
+        if (!deletedFaculty) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to delete faculty');
         }
-        const deleteUser = yield user_model_1.User.findByIdAndUpdate(id, { isDeleted: true }, { new: true, session });
-        if (!deleteUser) {
-            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to delete User');
+        // get user _id from deletedFaculty
+        const userId = deletedFaculty.user;
+        const deletedUser = yield user_model_1.User.findByIdAndUpdate(userId, { isDeleted: true }, { new: true, session });
+        if (!deletedUser) {
+            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to delete user');
         }
         yield session.commitTransaction();
         yield session.endSession();
+        return deletedFaculty;
     }
     catch (err) {
         yield session.abortTransaction();
         yield session.endSession();
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to Delete data');
+        throw new Error(err);
     }
 });
 exports.FacultyServices = {
-    getAllFacultyFromDB,
-    getOneFacultyFromDB,
-    updateFacultyFromDB,
+    getAllFacultiesFromDB,
+    getSingleFacultyFromDB,
+    updateFacultyIntoDB,
     deleteFacultyFromDB,
 };

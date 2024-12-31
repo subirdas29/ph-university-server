@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { TFaculty, TUserName } from './faculty.interface';
+import { FacultyModel, TFaculty, TUserName } from './faculty.interface';
 import { BloodGroup, Gender } from './faculty.constant';
 
 const userNameSchema = new Schema<TUserName>({
@@ -21,7 +21,7 @@ const userNameSchema = new Schema<TUserName>({
   },
 });
 
-const facultySchema = new Schema<TFaculty>(
+const facultySchema = new Schema<TFaculty, FacultyModel>(
   {
     id: {
       type: String,
@@ -110,4 +110,26 @@ facultySchema.virtual('FullName').get(function () {
   );
 });
 
-export const Faculty = model<TFaculty>('Faculty', facultySchema);
+// filter out deleted documents
+facultySchema.pre('find', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+facultySchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+facultySchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
+
+//checking if user is already exist!
+facultySchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Faculty.findOne({ id });
+  return existingUser;
+};
+
+export const Faculty = model<TFaculty, FacultyModel>('Faculty', facultySchema);

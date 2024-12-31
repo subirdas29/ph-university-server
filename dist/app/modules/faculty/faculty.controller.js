@@ -18,7 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const faculty_service_1 = require("./faculty.service");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const getAllFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield faculty_service_1.FacultyServices.getAllFacultyFromDB(req.query);
+    const result = yield faculty_service_1.FacultyServices.getAllFacultiesFromDB(req.query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -29,7 +29,7 @@ const getAllFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 }));
 const getOneFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield faculty_service_1.FacultyServices.getOneFacultyFromDB(id);
+    const result = yield faculty_service_1.FacultyServices.getSingleFacultyFromDB(id);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -40,7 +40,7 @@ const getOneFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 const updateFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { faculty } = req.body;
-    const result = yield faculty_service_1.FacultyServices.updateFacultyFromDB(id, faculty);
+    const result = yield faculty_service_1.FacultyServices.updateFacultyIntoDB(id, faculty);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
