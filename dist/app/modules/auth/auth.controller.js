@@ -29,15 +29,16 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const auth_service_1 = require("./auth.service");
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const config_1 = __importDefault(require("../../config"));
+// import config from '../../config';
 const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_service_1.AuthServices.loginUser(req.body);
     const { refreshToken, accessToken, needPasswordChange } = result;
     res.cookie('refreshToken', refreshToken, {
-        secure: config_1.default.NODE_ENV === 'production', // development mode e http te kaj korbe.ete secure false thake. kintu production mode e https kaj korbe ete secure true hbe
-        httpOnly: true, // eta jate js dara modify kora na jai tai httponly kora hyse
-        // refresh token free hosting e deploy hoi nai. ar paid e deploy korle ( sameSite, maxAge) ae 2ta add kore dite hoi. 
-        sameSite: 'none', //amader front and back end jodi alada domain e hoi thle sameSite k none add kri
-        maxAge: 1000 * 60 * 60 * 24 * 365 //eta refresh token er age
+        httpOnly: true, // Prevents client-side access
+        secure: config_1.default.NODE_ENV === 'production', // Use 'true' if HTTPS is enabled
+        sameSite: 'none', // Ensures the cookie is not sent on cross-site requests
+        path: '/', // Makes the cookie available on all routes
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Set to 7 days (in milliseconds)
     });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,

@@ -24,7 +24,13 @@ const auth = (...requiredRoles) => {
         if (!token) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized');
         }
-        const decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
+        let decoded;
+        try {
+            decoded = (0, auth_utils_1.verifyToken)(token, config_1.default.jwt_access_secret);
+        }
+        catch (err) {
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, 'You are not authorized');
+        }
         const { userId, role, iat } = decoded;
         const user = yield user_model_1.User.isUserExistsByCustomId(userId);
         if (!user) {

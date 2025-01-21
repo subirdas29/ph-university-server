@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import { AuthServices } from './auth.service';
 import sendResponse from '../../utils/sendResponse';
 import config from '../../config';
+// import config from '../../config';
 
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
@@ -10,12 +11,11 @@ const loginUser = catchAsync(async (req, res) => {
   const { refreshToken, accessToken, needPasswordChange } = result;
 
   res.cookie('refreshToken', refreshToken, {
-    secure: config.NODE_ENV === 'production', // development mode e http te kaj korbe.ete secure false thake. kintu production mode e https kaj korbe ete secure true hbe
-    httpOnly: true, // eta jate js dara modify kora na jai tai httponly kora hyse
-
-    // refresh token free hosting e deploy hoi nai. ar paid e deploy korle ( sameSite, maxAge) ae 2ta add kore dite hoi. 
-    sameSite:'none', //amader front and back end jodi alada domain e hoi thle sameSite k none add kri
-    maxAge: 1000 * 60 * 60 * 24 * 365 //eta refresh token er age
+    httpOnly: true,        // Prevents client-side access
+    secure: config.NODE_ENV === 'production',        // Use 'true' if HTTPS is enabled
+    sameSite: 'lax',       // Ensures the cookie is not sent on cross-site requests
+    // path: '/',             // Makes the cookie available on all routes
+    maxAge: 1000 * 60 * 60 * 24 * 365,
   });
 
   sendResponse(res, {

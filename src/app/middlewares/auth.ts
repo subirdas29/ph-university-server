@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../errors/AppError';
@@ -16,7 +17,14 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
     }
 
-    const decoded = verifyToken(token, config.jwt_access_secret as string);
+    let decoded
+  
+    try{
+       decoded = verifyToken(token, config.jwt_access_secret as string);
+    }
+    catch(err){
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+    }
 
     const { userId, role, iat } = decoded;
 
