@@ -36,9 +36,9 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true, // Prevents client-side access
         secure: config_1.default.NODE_ENV === 'production', // Use 'true' if HTTPS is enabled
-        sameSite: 'none', // Ensures the cookie is not sent on cross-site requests
-        path: '/', // Makes the cookie available on all routes
-        maxAge: 7 * 24 * 60 * 60 * 1000, // Set to 7 days (in milliseconds)
+        sameSite: 'lax', // Ensures the cookie is not sent on cross-site requests
+        // path: '/',             // Makes the cookie available on all routes
+        maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
